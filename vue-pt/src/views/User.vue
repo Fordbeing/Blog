@@ -29,9 +29,13 @@
                 </template>
             </el-table-column>
         </el-table>
+
+    </div>
+    <div class="page">
         <el-pagination class="pagerA" background layout="prev, pager, next" :total='configA.total' size="small"
             @current-change="handleChange" />
     </div>
+
 
     <el-dialog v-model="dialogVisible" :title="action == 'add' ? '新增用户' : '编辑用户'" width="35%"
         :before-close="handleClose">
@@ -42,16 +46,31 @@
             <el-row>
                 <el-col :span="12">
                     <el-form-item label="姓名" prop="name">
-                        <el-input v-model="formUser.name" placeholder="请输入姓名" />
+                        <el-input v-model="formUser.username" placeholder="请输入姓名" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="年龄" prop="age">
-                        <el-input v-model.number="formUser.age" placeholder="请输入年龄" />
+                    <el-form-item label="密码" prop="password">
+                        <el-input v-model.number="formUser.password" placeholder="请输入密码" />
                     </el-form-item>
                 </el-col>
             </el-row>
+
             <el-row>
+                <el-col :span="12">
+                    <el-form-item label="邮箱" prop="email">
+                        <el-input v-model="formUser.email" placeholder="请输入邮箱" />
+                    </el-form-item>
+                </el-col>
+                <!-- <el-col :span="12">
+                    <el-form-item label="密码" prop="password">
+                        <el-input v-model.number="formUser.age" placeholder="请输入密码" />
+                    </el-form-item>
+                </el-col> -->
+            </el-row>
+
+
+            <!-- <el-row>
                 <el-col :span="12">
                     <el-form-item class="select-clearn" label="性别" prop="sex">
                         <el-select v-model="formUser.sex" placeholder="请选择">
@@ -70,7 +89,7 @@
                 <el-form-item label="地址" prop="addr">
                     <el-input v-model="formUser.addr" placeholder="请输入地址" />
                 </el-form-item>
-            </el-row>
+            </el-row> -->
             <el-row style="justify-content: flex-end">
                 <el-form-item>
                     <el-button type="primary" @click="handleCancel">取消</el-button>
@@ -104,13 +123,13 @@ const handleClick = () => {
 
 const handleChange = (page) => {
     configA.page = page
-    getUserData()
+    getUserData((configA.page - 1) * 10, 10)
 }
 
 const handleSearch = () => {
     console.log(formInline.keyWord)
     configA.name = formInline.keyWord
-    getUserData()
+    getUserData(0, 10)
 }
 
 const configA = reactive({
@@ -123,13 +142,14 @@ const userData = reactive({
     list: []
 });
 
-const getUserData = async () => {
-    let data = await proxy.$api.getUserData()
-    userData.list = data.data.map(item => ({
+const getUserData = async (current, limit) => {
+    let data = await proxy.$api.getUserData(current, limit)
+    console.log(data)
+    userData.list = data.list.map(item => ({
         ...item,
         sex: item.sex === 1 ? '男' : '女'
     }))
-    configA.total = data.count
+    configA.total = data.total
 }
 
 const deleteUserData = async (id) => {
@@ -137,7 +157,7 @@ const deleteUserData = async (id) => {
         let data = await proxy.$api.deleteUser(id);
         // 假设 deleteUser API 调用成功会返回一些确认信息，但这里我们主要关心的是删除操作本身  
         // 调用 getUserData 来更新用户列表  
-        await getUserData();
+        await getUserData(0, 10);
         ElMessage({
             type: 'success',
             message: 'Delete completed',
@@ -180,6 +200,32 @@ const deleteUser = (row) => {
 };
 
 
+// 用户添加，表单提交
+const onSubmit = () => {
+    SaveUser()
+};
+
+
+const SaveUser = async () => {
+    try {
+        let data = await proxy.$api.SaveUser(formUser);
+        // 假设 saveUser API 调用成功会返回一些确认信息，但这里我们主要关心的是保存操作本身  
+        // 调用 getUserData 来更新用户列表  
+        await getUserData(0, 10);
+        ElMessage({
+            type: 'success',
+            message: 'Save completed',
+        });
+    } catch (error) {
+        // 处理错误情况，例如显示错误信息  
+        ElMessage({
+            type: 'error',
+            message: 'Save failed: ' + error.message,
+        });
+    };
+}
+
+
 // 弹窗
 //控制对话框是否显示
 const dialogVisible = ref(false)
@@ -190,14 +236,14 @@ const action = ref("add")
 const formUser = reactive({})
 //表单校验规则
 const rules = reactive({
-    name: [{ required: true, message: "姓名是必填项", trigger: "blur" }],
-    age: [
-        { required: true, message: "年龄是必填项", trigger: "blur" },
-        { type: "number", message: "年龄必须是数字" },
+    username: [{ required: true, message: "姓名是必填项", trigger: "blur" }],
+    password: [
+        { required: true, message: "密码是必填项", trigger: "blur" },
+        // { type: "number", message: "密码必须是数字" },
     ],
-    sex: [{ required: true, message: "性别是必选项", trigger: "change" }],
-    birth: [{ required: true, message: "出生日期是必选项" }],
-    addr: [{ required: true, message: '地址是必填项' }]
+    email: [{ required: true, message: "邮箱是必选项", trigger: "blur" }],
+    // birth: [{ required: true, message: "出生日期是必选项" }],
+    // addr: [{ required: true, message: '地址是必填项' }]
 })
 
 
@@ -225,7 +271,7 @@ const handleCancel = () => {
 
 
 onMounted(() => {
-    getUserData()
+    getUserData(0, 10)
 })
 
 </script>
@@ -237,17 +283,15 @@ onMounted(() => {
 }
 
 .table {
-    position: relative;
-    height: 520px;
+    height: 480px;
 }
 
 .el-table {
     width: 100%;
-    height: 500px;
+    height: 480px;
 }
 
 .pagerA {
-    position: absolute;
     /* right: 10px; */
     left: 35%;
     bottom: 30px;

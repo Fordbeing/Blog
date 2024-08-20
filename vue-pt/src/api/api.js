@@ -27,9 +27,9 @@ export default{
         mock:true
       })
     },
-    getUserData: () => {
+    getUserData: (current,limit) => {
       return request({
-        url: '/manager/getAll',
+        url: `/manager/findByPage/${current}/${limit}`,
         method: 'get',
       })
     },
@@ -69,6 +69,13 @@ export default{
         url: `/article/updatePost`,
         method: 'put',
         data: postVO
+      })
+    },
+    SaveUser: (manager) => {
+      return request({
+        url: `/manager/addManager`,
+        method: 'post',
+        data: manager
       })
     },
     
