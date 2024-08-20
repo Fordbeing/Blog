@@ -1,5 +1,23 @@
 # Vue 3 + Vite
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+这个项目使用vue3 + vite 搭建而成，采用的是前后端分离
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+现在暂时用的技术比较少
+
+后续将加入redis进行缓存、nacos代理，暂时先把主体框架先搭建好
+
+### **基本情况**
+
+文章发布和修改已经完成，采用的是markdown格式的文章发布
+
+文章管理已经完成
+
+用户管理已经完成
+
+### **代办**
+
+- 将后端上传
+- 后台的前端暂时搁置，因为主要功能已经实现，先去完成前端显示的工作
+- 后续再慢慢完善
+
+敬请期待，持续更新中
