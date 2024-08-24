@@ -42,7 +42,7 @@
 
         <!-- Search Column -->
         <el-col :span="6" class="search-col">
-          <el-input placeholder="Search..." suffix-icon="el-icon-search" class="search-input" />
+          <el-input placeholder="Search..." v-model="searchQuery"  class="search-input" />
           <el-button class="search-button" icon="el-icon-search" @click="handleSearch">Search</el-button>
         </el-col>
       </el-row>
@@ -52,6 +52,9 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { ref } from 'vue';
+
+const searchQuery = ref('');
 
 const router = useRouter();
 const goHome = () => {
@@ -59,7 +62,8 @@ const goHome = () => {
 };
 const handleSearch = () => {
   // Handle search functionality here
-  console.log('Search button clicked');
+  console.log('Searching for: ', searchQuery);
+  
 };
 </script>
 
@@ -120,7 +124,7 @@ const handleSearch = () => {
 }
 
 .search-input {
-  max-width: 200px;
+  max-width: 250px;
   margin-right: 10px;
 }
 

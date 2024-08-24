@@ -12,7 +12,7 @@
         <el-row class="info-row">
           <el-col :span="8" class="info-label">GitHub:</el-col>
           <el-col :span="16" class="info-value">
-            <a href="https://github.com/" target="_blank">https://github.com/</a>
+            <a href="https://github.com/Fordbeing/PTBlog-Vue" target="_blank">Click Me</a>
           </el-col>
         </el-row>
         <el-row class="info-row">
