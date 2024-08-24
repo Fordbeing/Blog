@@ -134,7 +134,7 @@ const handleSearch = () => {
 
 const configA = reactive({
     name: '',
-    total: 10,
+    total: 10, // 总记录数
     page: 1 // 当前页码
 })
 
