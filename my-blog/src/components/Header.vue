@@ -9,7 +9,7 @@
         
         <!-- Logo Column -->
         <el-col :span="6" class="logo-col">
-          <h1 class="logo">PTBlog</h1>
+          <h1 class="logo" >PTBlog</h1>
         </el-col>
 
         <!-- Additional Columns -->
@@ -86,7 +86,8 @@ const handleSearch = () => {
 }
 
 .home-button {
-  background: linear-gradient(45deg, #424446, #8a5779);
+  
+  background: linear-gradient(45deg, #34393f, #409eff);
   color: #201b1b;
   border: none;
   height: 40px;
@@ -97,7 +98,8 @@ const handleSearch = () => {
 }
 
 .home-button:hover {
-  background: linear-gradient(45deg, #34393f, #409eff);
+  
+  background: linear-gradient(45deg, #424446, #8a5779);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
   color: #7e15a8;
@@ -112,6 +114,8 @@ const handleSearch = () => {
   font-weight: bold;
   color: #ffffff;
 }
+
+
 
 .categories {
   text-align: center;
@@ -129,6 +133,7 @@ const handleSearch = () => {
 }
 
 .search-button {
+  
   background: linear-gradient(45deg, #424446, #8a5779);
   color: #201b1b;
   border: none;
