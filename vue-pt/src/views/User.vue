@@ -278,7 +278,7 @@ onMounted(() => {
 
 <style scoped>
 .user-header {
-    display: flex;
+    display: flex; 
     justify-content: space-between;
 }
 
