@@ -60,7 +60,7 @@ const list = ref([
     {
         path: '/mall',
         name: 'mall',
-        label: '商品管理',
+        label: '文章预览',
         icon: 'video-play',
         url: 'Mall'
     },
