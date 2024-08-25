@@ -36,16 +36,16 @@ vue-pt是后台的前端页面，my-blog是用户使用的前端页面，后端�
 
 # my-blog部分页面展示
 my-blog作为用户使用的前端，所以页面必须要好看，我没有发后端主页前端的原因就是还有许多功能没有做好，但是已经基本完成，过几天就开源出来。
-1.首页
+### 首页
 ![alt text](my-blog/my-blog-picture/image.png)
 
-2.文章详情页
+### 文章详情页
 ![alt text](my-blog/my-blog-picture/ArticleDetail.png)
 
-往下转动可以看到回到顶端的按钮
+### 往下转动可以看到回到顶端的按钮
 ![alt text](my-blog/my-blog-picture/button.png)
 
-**点击Tree Hole 会跳转到树洞页面**
+### 点击Tree Hole 会跳转到树洞页面
 ![alt text](my-blog/my-blog-picture/TreeHole.png)
 
 目前正在大步更新，功能会越来越完善。
