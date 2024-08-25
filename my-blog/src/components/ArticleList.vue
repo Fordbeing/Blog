@@ -17,9 +17,11 @@ const articles = [
 <style scoped>
 .article-list {
   display: grid;
-  grid-template-columns: 1fr; /* 只有一列，所有文章卡片在同一列上 */
+  
   grid-gap: 20px; /* 行间距和列间距都为20px */
   padding: 10px; /* 可选：增加一些内边距 */
-  margin-left: 400px;
+  width: 80%;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
 }
 </style>

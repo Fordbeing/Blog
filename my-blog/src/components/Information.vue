@@ -54,16 +54,20 @@
   }
   
   .info-value {
-    color: #666;
+    font-size: 16px;
+    color: #c79d9d;
   }
   
   a {
-    color: #409EFF;
+    color: #616b75;
+    font-weight: bold;
     text-decoration: none;
   }
   
   a:hover {
     text-decoration: underline;
+    color: #2c8fa8;
+    font-weight: bold;
   }
   
   h2 {

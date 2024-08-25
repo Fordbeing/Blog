@@ -1,11 +1,25 @@
 <template>
   <el-card class="article-card" shadow="hover" @click="goToDetail">
     <div class="card-content">
+      <!-- 左侧图片区域 -->
       <div class="image-container">
         <img :src="article.image" alt="Article Image" />
       </div>
-      <div class="text-content">
-        <h3>{{ article.title }}</h3>
+
+      <!-- 中间文字信息区域 -->
+      <div class="info-container">
+        <div>
+          <h2>{{ article.title }}</h2>
+          <p><strong>Author:</strong> {{ article.author }}</p>
+          
+          <p><strong>Category:</strong> {{ article.category }}</p>
+          <p><strong>Reading Time:</strong> {{ article.readingTime }} mins</p>
+          <p><strong>Word Count:</strong> {{ article.wordCount }}</p>
+        </div>
+      </div>
+
+      <!-- 右侧摘要简介区域 -->
+      <div class="summary-container">
         <p>{{ article.summary }}</p>
       </div>
     </div>
@@ -25,6 +39,7 @@ const props = defineProps({
 const router = useRouter();
 const goToDetail = () => {
   router.push(`/article/${props.article.id}`);
+  // router.push(`/treeHole`);
 };
 </script>
 
@@ -34,7 +49,9 @@ const goToDetail = () => {
   transition: transform 0.3s;
   width: 1000px;
   height: 250px;
-  /* margin: 10px auto; */
+  background-color: rgba(12, 11, 11, 0.6); /* 设置背景颜色透明度 */
+  border: none; /* 可选：移除边框 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 可选：为卡片添加阴影 */
 }
 
 .article-card:hover {
@@ -57,16 +74,22 @@ const goToDetail = () => {
   border-radius: 8px;
 }
 
-.text-content {
-  flex: 1; /* 右侧文本区域占据剩余空间 */
+.info-container {
+  flex: 1; /* 中间信息区域占据剩余空间 */
+  padding: 0 20px;
 }
 
-h3 {
-  color: #409EFF;
+.summary-container {
+  flex: 1; /* 右侧摘要区域占据剩余空间 */
+  padding: 0 20px;
+}
+
+h2 {
+  color: #4789e0;
   margin-bottom: 10px;
 }
 
 p {
-  color: #666;
+  color: #928d8d;
 }
 </style>

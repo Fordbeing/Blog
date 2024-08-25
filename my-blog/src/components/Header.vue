@@ -13,14 +13,14 @@
         </el-col>
 
         <!-- Additional Columns -->
-        <el-col :span="3" class="logo-col">
-          <h1 class="talk">Tree Hole</h1>
+        <el-col :span="3" class="logo-col" shadow="hover">
+          <h1 class="talk" @click="goTreeHole">Tree Hole</h1>
         </el-col>
         <el-col :span="3" class="logo-col">
-          <h1 class="talk">Tree Hole</h1>
+          <h1 class="person">Tree Hole</h1>
         </el-col>
         <el-col :span="3" class="logo-col">
-          <h1 class="talk">Tree Hole</h1>
+          <h1 class="index">Tree Hole</h1>
         </el-col>
 
         <!-- Categories Dropdown -->
@@ -56,6 +56,11 @@ import { ref } from 'vue';
 
 const searchQuery = ref('');
 
+
+const goTreeHole = () => {
+  router.push('/treehole');
+};
+
 const router = useRouter();
 const goHome = () => {
   router.push('/');
@@ -85,6 +90,10 @@ const handleSearch = () => {
   text-align: left;
 }
 
+.talk{
+  color: #a3415a;
+}
+
 .home-button {
   
   background: linear-gradient(45deg, #34393f, #409eff);
@@ -112,7 +121,11 @@ const handleSearch = () => {
 .logo {
   font-size: 24px;
   font-weight: bold;
-  color: #ffffff;
+  background: linear-gradient(135deg, #975997, #b8bda8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 
