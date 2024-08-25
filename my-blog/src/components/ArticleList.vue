@@ -10,6 +10,10 @@ import ArticleCard from './ArticleCard.vue';
 const articles = [
   { id: 1, title: 'My First Blog', summary: 'This is the summary of my first blog.' },
   { id: 2, title: 'Learning Vue 3', summary: 'An introduction to Vue 3.' },
+  { id: 3, title: 'My First Blog', summary: 'This is the summary of my first blog.' },
+  { id: 4, title: 'Learning Vue 3', summary: 'An introduction to Vue 3.' },
+  { id: 5, title: 'My First Blog', summary: 'This is the summary of my first blog.' },
+  { id: 6, title: 'Learning Vue 3', summary: 'An introduction to Vue 3.' },
   // 更多文章数据
 ];
 </script>

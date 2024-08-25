@@ -3,7 +3,7 @@
     <el-header>
       <Header />
     </el-header>
-    
+
     <el-main>
       <div class="container">
         <el-card class="article-head">
@@ -30,11 +30,24 @@
                 <span class="label">Word Count:</span>
                 <span class="value">{{ wordCount }} words</span>
               </div>
+              <div class="info-item">
+                <span class="label">Release Date:</span>
+                <span class="value">{{ ReleaseDate }} </span>
+              </div>
+              <div class="info-item">
+                <span class="label">Views</span>
+                <span class="value">{{ Views }} times</span>
+              </div>
             </div>
             <!-- 右边的简介 -->
             <div class="article-summary">
               <div class="summary-title">Summary</div>
               <div class="summary-content">{{ article.summary }}</div>
+              <div class="info-item">
+                <span class="label">Action:</span>
+                <span class="value">点赞：{{ count }} </span>
+                <span class="value">{{ }} share</span>
+              </div>
             </div>
           </div>
         </el-card>
@@ -45,15 +58,18 @@
         </el-card>
       </div>
     </el-main>
-    <el-button  
-      type="primary"  
-      icon="el-icon-arrow-up"  
-      v-show="isScrolled"  
-      @click="scrollToTop"  
-      class="scroll-to-top"  
-    >  
-      Top 
-    </el-button>  
+    <el-button type="primary" icon="el-icon-arrow-up" v-show="isScrolled" @click="scrollToTop" class="scroll-to-top">
+      TOP
+    </el-button>
+
+    <el-button type="primary" icon="el-icon-arrow-up" v-show="isScrolled" @click="LikeBtn" class="like">
+      Like
+    </el-button>
+    <!-- 动态生成的 +1 动画效果 -->
+    <transition name="fade">
+      <div v-if="showPlusOne" class="plus-one">+1</div>
+    </transition>
+
   </el-container>
 </template>
 
@@ -63,24 +79,35 @@ import Header from '../components/Header.vue';
 import { useRoute } from 'vue-router';
 import { MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
-import { onUnmounted } from 'vue';  
+import { onUnmounted } from 'vue';
 
-const isScrolled = ref(false);  
-const handleScroll = () => {  
+const isScrolled = ref(false);
+const handleScroll = () => {
   isScrolled.value = window.scrollY > 100;
-};  
-const scrollToTop = () => {  
-  window.scrollTo({  
-    top: 0,  
+};
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
     behavior: 'smooth',
-  });  
-};  
-onMounted(() => {  
-  window.addEventListener('scroll', handleScroll);  
-});  
-onUnmounted(() => {  
-  window.removeEventListener('scroll', handleScroll);  
-});  
+  });
+};
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
+
+const count = ref(0);
+const showPlusOne = ref(false);
+
+const LikeBtn = () => {
+  count.value += 1;
+  showPlusOne.value = true;
+  setTimeout(() => {
+    showPlusOne.value = false;
+  }, 800);  // 动画显示时间
+}
 
 const id = 'preview-only';
 const text = ref('# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```');
@@ -93,18 +120,21 @@ const article = ref({
   content: '# 小天才'
 });
 
+// 获取发布日期
+const ReleaseDate = computed(() => {
+  const date = new Date();
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+});
+
 const wordCount = computed(() => text.value.length);
 const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
 </script>
 
 <style scoped>
-
-
-
 .scroll-to-top {
   position: fixed;
   bottom: 100px;
-  right: 150px;
+  right: 100px;
   width: 100px;
   height: 100px;
   border-radius: 50%;
@@ -121,40 +151,105 @@ const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
   justify-content: center;
   padding: 0;
 }
+
 .scroll-to-top:hover {
   background: linear-gradient(135deg, #50697a, #174385);
   transform: scale(1.1);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
+
 .scroll-to-top .el-icon-arrow-up {
   font-size: 24px;
 }
 
 
 
+.like {
+  position: fixed;
+  bottom: 230px;
+  right: 100px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #50697a, #174385);
 
-.el-main{
+  color: #241036;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+  z-index: 1000;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  justify-content: center;
+  padding: 0;
+}
+
+.like:hover {
+  background: linear-gradient(135deg, #50697a, #174385);
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.like .el-icon-arrow-up {
+  font-size: 24px;
+}
+
+
+/* +1 动画效果 */
+.plus-one {
+  position: fixed;
+  bottom: 350px;
+  right: 135px;
+  animation: moveUp 1s ease-in-out;
+  font-weight: bold;
+  font-size: 24px;
+  color: #17b3a6;
+}
+
+/* +1 的动画效果定义 */
+@keyframes moveUp {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+}
+
+
+.el-main {
   padding: 0px;
 }
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: calc(100vh - 60px);
   /* padding: 20px; */
-  background-image: url('@/assets/img/ArticleDetailBack.png'); /* 设置背景图片 */
-  background-size: cover; /* 调整背景图片大小 */
-  background-position: center; /* 调整背景图片位置 */
-  background-repeat: no-repeat; /* 防止背景图片重复 */
-  background-attachment: fixed; /* 背景图片保持不动 */
+  background-image: url('@/assets/img/ArticleDetailBack.png');
+  /* 设置背景图片 */
+  background-size: cover;
+  /* 调整背景图片大小 */
+  background-position: center;
+  /* 调整背景图片位置 */
+  background-repeat: no-repeat;
+  /* 防止背景图片重复 */
+  background-attachment: fixed;
+  /* 背景图片保持不动 */
 }
 
 .article-head {
   margin-top: 30px;
   width: 70%;
-  padding: 20px;
+  padding: 0px;
   margin-bottom: 20px;
-  background-color: rgba(82, 73, 73, 0.3); /* 设置背景颜色并调整透明度 */
+  background-color: rgba(82, 73, 73, 0.3);
+  /* 设置背景颜色并调整透明度 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: none;
 }
@@ -169,7 +264,7 @@ const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
   flex-direction: column;
   gap: 10px;
   width: 45%;
-  
+
 }
 
 .article-summary {
@@ -192,17 +287,18 @@ const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
 .summary-content {
   font-size: 16px;
   color: #ad8181;
-  
+  height: 70%;
 }
 
 .article-detail {
   width: 70%;
   /* padding: 20px; */
   margin-bottom: 20px;
-  background-color: rgba(255, 255, 255, 0.02); /* 设置背景颜色并调整透明度 */
+  background-color: rgba(255, 255, 255, 0.02);
+  /* 设置背景颜色并调整透明度 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: none;
-  
+
 }
 
 .info-item {
@@ -216,11 +312,13 @@ const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
   font-family: 'Orbitron', sans-serif;
   color: #333;
 }
+
 .label {
   font-weight: bold;
   font-size: 14px;
   color: #b34f4f;
 }
+
 .value {
   font-weight: bold;
   font-size: 16px;

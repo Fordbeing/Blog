@@ -78,5 +78,13 @@ export default{
         data: manager
       })
     },
+    getSummary: (aiDto1) => {
+      return request({
+        url: `/article/getSummary`,
+        method: 'post',
+        data: aiDto1
+      })
+    }
+    
     
 }

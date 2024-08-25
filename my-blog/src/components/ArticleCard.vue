@@ -3,18 +3,18 @@
     <div class="card-content">
       <!-- 左侧图片区域 -->
       <div class="image-container">
-        <img :src="article.image" alt="Article Image" />
+        <img src="@/assets/img/ArticleImg.jpg" alt="Article Image" />
       </div>
 
       <!-- 中间文字信息区域 -->
       <div class="info-container">
         <div>
           <h2>{{ article.title }}</h2>
-          <p><strong>Author:</strong> {{ article.author }}</p>
-          
-          <p><strong>Category:</strong> {{ article.category }}</p>
-          <p><strong>Reading Time:</strong> {{ article.readingTime }} mins</p>
-          <p><strong>Word Count:</strong> {{ article.wordCount }}</p>
+          <p><strong>Author:</strong><span class="value"> {{ article.author }}131</span> </p>
+          <p><strong>Category: </strong> <span class="value">{{ article.category }} 131</span></p>
+          <p><strong>Reading Time:  </strong> <span class="value">{{ article.readingTime }} 131mins</span> </p>
+          <p><strong>Word Count: </strong> <span class="value">{{ article.wordCount }} Words</span></p>
+          <p><strong>Release Date: </strong> <span class="value">{{ article.releaseDate }} </span></p>
         </div>
       </div>
 
@@ -44,6 +44,14 @@ const goToDetail = () => {
 </script>
 
 <style scoped>
+
+.value {
+  font-weight: bold;
+  font-size: 16px;
+  color: #56928d;
+  /* font-family: 'Orbitron', sans-serif; */
+}
+
 .article-card {
   cursor: pointer;
   transition: transform 0.3s;
@@ -70,11 +78,12 @@ const goToDetail = () => {
 
 .image-container img {
   width: 100%;
-  height: auto;
+  height: 150px;
   border-radius: 8px;
 }
 
 .info-container {
+  
   flex: 1; /* 中间信息区域占据剩余空间 */
   padding: 0 20px;
 }
@@ -90,6 +99,6 @@ h2 {
 }
 
 p {
-  color: #928d8d;
+  color: #a87c96;
 }
 </style>

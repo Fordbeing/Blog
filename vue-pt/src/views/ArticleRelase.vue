@@ -1,103 +1,99 @@
 <template>
-
-    <div class="articleUpdateHeader">
-        <el-form :inline="true" :model="formInline">
+    <div class="articleUpdateContainer">
+        <!-- 文章信息输入部分 -->
+        <el-form :inline="true" :model="formInline" class="articleUpdateHeader">
             <el-form-item label="文章标题">
                 <el-input placeholder="请输入文章标题" v-model="Title" ref="articleTitleInput"></el-input>
+            </el-form-item>
+            <el-form-item label="分类">
+                <el-input placeholder="请输入分类" v-model="Category" ref="articleCategoryInput"></el-input>
             </el-form-item>
             <el-form-item label="作者">
                 <el-input placeholder="请输入作者名称" v-model="Author" ref="articleAuthorInput"></el-input>
             </el-form-item>
-
-            <!-- <el-form-item>
-                        <el-button type="primary" @click="handleSearch">查询</el-button>
-                    </el-form-item> -->
-
+            <el-form-item class="summary-form-item">
+                <el-input type="textarea" placeholder="请输入简介" v-model="Summary" ref="articleSummaryInput"
+                    rows="4"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="handleGenerateSummary">生成简介</el-button>
+            </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="handleRealse">发布</el-button>
             </el-form-item>
         </el-form>
-    </div>
 
-    <div class="articleUpdateTitle">
-        <el-row>
-            <el-col :span="6">
-                <div style="display: inline-flex; align-items: center; font-size: 20px; margin-bottom: 12px;">
-                    文章标题
-                </div>
-                <el-statistic :value="268500" />
-            </el-col>
-            <el-col :span="6">
-                <el-statistic :value="138">
-                    <template #title>
-                        <div style="display: inline-flex; align-items: center; font-size: 20px;margin-bottom: 8px;">
-                            作者
-                            <el-icon style="margin-left: 4px" :size="12">
-                                <Male />
-                            </el-icon>
-                        </div>
-                    </template>
-                    <template #suffix>/100</template>
-                </el-statistic>
-            </el-col>
-            <el-col :span="6">
-                <div style="display: inline-flex; align-items: center; font-size: 20px; margin-bottom: 12px;">
-                    预估阅读时长
-                </div>
-                <el-statistic :value="outputValue" />
-            </el-col>
-            <el-col :span="6">
-                <div style="display: inline-flex; align-items: center; font-size: 20px; margin-bottom: 12px;">
-                    创建时间
-                </div>
-                <el-statistic :value="562">
-                </el-statistic>
-            </el-col>
-        </el-row>
-    </div>
-
-    <div class="articleUpdateContent">
-        <md-editor v-model="text" :config="editorConfig" theme="dark" />
+        <!-- 文章内容编辑部分 -->
+        <div class="articleUpdateContent">
+            <md-editor v-model="text" :config="editorConfig" theme="dark" />
+        </div>
     </div>
 </template>
 
 <script setup>
-
-import { ref, getCurrentInstance, onMounted, reactive } from 'vue'
+import { ref, computed, getCurrentInstance, reactive } from 'vue'
 import { MdEditor } from 'md-editor-v3';
 import { ElMessage } from 'element-plus'
-import { h } from 'vue'
 import 'md-editor-v3/lib/style.css';
 
 const { proxy } = getCurrentInstance()
 
-// 假设 md-editor-v3 支持通过 config prop 传递配置  
 const text = ref('# Hello Editor');
 
 const Title = ref('')
+const Category = ref('')
 const Author = ref('')
+const Summary = ref('')
 const articleTitleInput = ref(null)
+const articleCategoryInput = ref(null)
 const articleAuthorInput = ref(null)
+const articleSummaryInput = ref(null)
+
+const wordCount = computed(() => text.value.length);
+const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
 
 const postDto = reactive({
     'title': Title,
+    'category': Category,
     'content': text,
     'author': Author,
+    'summary': Summary,
+    'readingTime': estimatedReadingTime,
+    'wordCount': wordCount,
+    'categoryName': 'Java',
 })
+
 const handleRealse = () => {
-    if (Title.value == '') {
+    if (Title.value === '') {
         ElMessage({
             message: '请输入文章标题！',
             type: 'warning',
         })
         articleTitleInput.value.focus()
-
-    } else if (Author.value == '') {
+    } else if (Category.value === '') {
+        ElMessage({
+            message: '请输入分类！',
+            type: 'warning',
+        })
+        articleCategoryInput.value.focus()
+    } else if (Author.value === '') {
         ElMessage({
             message: '请输入作者名称！',
             type: 'warning',
         })
         articleAuthorInput.value.focus()
+    } else if (Summary.value === '') {
+        ElMessage({
+            message: '请输入简介！',
+            type: 'warning',
+        })
+        articleSummaryInput.value.focus()
+    }else if (text.value === '# Hello Editor') {
+        ElMessage({
+            message: '请输入内容！',
+            type: 'warning',
+        })
+        text.value.focus()
     } else {
         ElMessage({
             message: '发布成功！',
@@ -105,42 +101,101 @@ const handleRealse = () => {
         })
         savePost(postDto)
     }
-
-
 }
-// 获取表格数据
+
 const savePost = async (postDto) => {
     await proxy.$api.savePost(postDto)
 }
 
+const aiDto1 = reactive({
+    'content': text,
+})
 
 
+const getSummary = async (aiDto1) => {
+
+    try {
+        let content = await proxy.$api.getSummary(aiDto1)
+        Summary.value = content.content;
+        console.log(content.content);
+
+        ElMessage({
+            type: 'success',
+            message: 'completed',
+        });
+    } catch (error) {
+        // 处理错误情况，例如显示错误信息  
+        ElMessage({
+            type: 'error',
+            message: 'failed: ' + error.message,
+        });
+    };
+}
+
+
+const handleGenerateSummary = () => {
+    getSummary(aiDto1)
+}
 </script>
 
 <style scoped lang="less">
-.articleUpdateTitle {
-    text-align: center;
-    background-color: #e2e1e1;
-    height: 70px;
-    border-bottom: 5px solid #a09e9e;
-    margin: 10px 0;
+.articleUpdateContainer {
+    width: 100%;
+    background: url('path/to/your/background-image.jpg') no-repeat center center fixed;
+    background-size: cover;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    .el-col {
-        text-align: center;
-        margin-top: 8px;
-    }
+.articleUpdateHeader {
+    background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.articleUpdateHeader .el-form-item {
+    margin-bottom: 10px;
+}
+
+.summary-form-item {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.el-input {
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid #dcdfe6;
+    padding: 10px;
+}
+
+.el-input[type="textarea"] {
+    height: 120px; /* 增加高度 */
+    resize: vertical; /* 允许垂直调整大小 */
+}
+
+.el-button {
+    border-radius: 8px;
+    padding: 10px 20px;
 }
 
 .articleUpdateContent {
-
-    width: 100%;
-    height: 650px;
-    background-color: #fff;
-
+    background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .md-editor {
-    height: 720px;
+    height: 600px;
     width: 100%;
+    border-radius: 8px;
+}
+
+.el-backtop {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

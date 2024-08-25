@@ -6,6 +6,10 @@
           <el-col :span="16" class="info-value">Ford</el-col>
         </el-row>
         <el-row class="info-row">
+          <el-col :span="8" class="info-label">QQ:</el-col>
+          <el-col :span="16" class="info-value">1904943319</el-col>
+        </el-row>
+        <el-row class="info-row">
           <el-col :span="8" class="info-label">Email:</el-col>
           <el-col :span="16" class="info-value">19970825692@163.com</el-col>
         </el-row>
@@ -15,6 +19,14 @@
             <a href="https://github.com/Fordbeing/PTBlog-Vue" target="_blank">Click Me</a>
           </el-col>
         </el-row>
+
+        <el-row class="info-row">
+          <el-col :span="8" class="info-label">Today's Headlines</el-col>
+          <el-col :span="16" class="info-value">
+            <a href="https://www.toutiao.com/c/user/token/MS4wLjABAAAAW7bvP0MXdAoNsyA50m-6iLiNsYaAsMD4Jw19LNA-_uX1z6vd8c3in8tZICRylrn9/?source=tuwen_detail&entrance_gid=7405095446294626866&log_from=4c9a9d71f4df5_1724562949929" target="_blank">Click Me</a>
+          </el-col>
+        </el-row>
+
         <el-row class="info-row">
           <el-col :span="8" class="info-label">Location:</el-col>
           <el-col :span="16" class="info-value">Shang Hai</el-col>
