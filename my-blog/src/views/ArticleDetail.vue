@@ -20,23 +20,23 @@
               </div>
               <div class="info-item">
                 <span class="label">Category:</span>
-                <span class="value">{{ article.category }}</span>
+                <span class="value">{{ article.categoryName }}</span>
               </div>
               <div class="info-item">
                 <span class="label">Reading Time:</span>
-                <span class="value">{{ estimatedReadingTime }} mins</span>
+                <span class="value">{{ article.readingTime }} mins</span>
               </div>
               <div class="info-item">
                 <span class="label">Word Count:</span>
-                <span class="value">{{ wordCount }} words</span>
+                <span class="value">{{ article.wordCount }} words</span>
               </div>
               <div class="info-item">
                 <span class="label">Release Date:</span>
-                <span class="value">{{ ReleaseDate }} </span>
+                <span class="value">{{ formatDate(article.publishDate) }} </span>
               </div>
               <div class="info-item">
                 <span class="label">Views</span>
-                <span class="value">{{ Views }} times</span>
+                <span class="value">{{ article.views }} times</span>
               </div>
             </div>
             <!-- 右边的简介 -->
@@ -45,7 +45,7 @@
               <div class="summary-content">{{ article.summary }}</div>
               <div class="info-item">
                 <span class="label">Action:</span>
-                <span class="value">点赞：{{ count }} </span>
+                <span class="value">点赞：{{ article.likes }} </span>
                 <span class="value">{{ }} share</span>
               </div>
             </div>
@@ -53,7 +53,7 @@
         </el-card>
         <el-card class="article-detail">
           <div class="md-preview-container">
-            <MdPreview :editorId="id" :modelValue="text" theme="dark" />
+            <MdPreview :editorId="id" :modelValue="article.content" theme="dark" />
           </div>
         </el-card>
       </div>
@@ -79,7 +79,25 @@ import Header from '../components/Header.vue';
 import { useRoute } from 'vue-router';
 import { MdPreview } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
-import { onUnmounted } from 'vue';
+import { onUnmounted, getCurrentInstance } from 'vue';
+const { proxy } = getCurrentInstance();
+
+
+
+// 日期格式
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 
 const isScrolled = ref(false);
 const handleScroll = () => {
@@ -97,12 +115,10 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
-
-const count = ref(0);
 const showPlusOne = ref(false);
 
 const LikeBtn = () => {
-  count.value += 1;
+  article.value.likes += 1;
   showPlusOne.value = true;
   setTimeout(() => {
     showPlusOne.value = false;
@@ -110,24 +126,22 @@ const LikeBtn = () => {
 }
 
 const id = 'preview-only';
-const text = ref('# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```# 科技化布局\n这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。\n ```java \nprint```');
 const route = useRoute();
-const article = ref({
-  title: '科技化布局',
-  author: 'Ford',
-  category: 'Tech',
-  summary: '这是一篇关于科技化布局的文章，详细探讨了如何使用 Vue 和 Element Plus 进行布局设计。',
-  content: '# 小天才'
+const articleId = route.params.id;
+
+const article = ref({});
+
+
+const getArticleDetailById =async (postID)=>{
+  const data  = await proxy.$api.getArticleDetailById(postID)
+  article.value = data
+
+}
+
+onMounted(() => {
+  getArticleDetailById(articleId);
 });
 
-// 获取发布日期
-const ReleaseDate = computed(() => {
-  const date = new Date();
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
-});
-
-const wordCount = computed(() => text.value.length);
-const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
 </script>
 
 <style scoped>
@@ -162,6 +176,13 @@ const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
   font-size: 24px;
 }
 
+.el-main {
+  padding: 20px; /* 调整或恢复内边距，确保内容有足够的空间 */
+}
+
+.container {
+  min-height: 100vh; /* 确保容器至少与视口高度相同，允许滚动 */
+}
 
 
 .like {

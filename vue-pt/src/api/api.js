@@ -78,13 +78,40 @@ export default{
         data: manager
       })
     },
-    getSummary: (aiDto1) => {
+    getSummary: (aiDto1) => {  // 调用AI接口，获得简介内容
       return request({
         url: `/article/getSummary`,
         method: 'post',
         data: aiDto1
       })
-    }
+    },
+    // 分类管理
+    getCategoryList: () => {  // 获取分类列表
+      return request({
+        url: `/category/getCategoryList`,
+        method: 'get',
+      })
+    },
+    addCategory: (category) => {  // 添加分类
+      return request({
+        url: `/category/addCategory`,
+        method: 'post',
+        data: category
+      })
+    },
+    deleteCategory: (categoryID) => {  // 删除分类
+      return request({
+        url: `/category/deleteCategory/${categoryID}`,
+        method: 'delete',
+      })
+    },
+    updateCategory: (category) => {  // 更新分类
+      return request({
+        url: `/category/updateCategory`,
+        method: 'put',
+        data: category
+      })
+    },
     
     
 }

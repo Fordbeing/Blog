@@ -9,6 +9,7 @@ const routes = [
     path: '/article/:id',
     component: () => import("@/views/ArticleDetail.vue"),
   },
+  
   {
     path:'/treeHole',
     component: () => import("@/views/TreeHole.vue"),

@@ -10,11 +10,11 @@
       <div class="info-container">
         <div>
           <h2>{{ article.title }}</h2>
-          <p><strong>Author:</strong><span class="value"> {{ article.author }}131</span> </p>
-          <p><strong>Category: </strong> <span class="value">{{ article.category }} 131</span></p>
-          <p><strong>Reading Time:  </strong> <span class="value">{{ article.readingTime }} 131mins</span> </p>
-          <p><strong>Word Count: </strong> <span class="value">{{ article.wordCount }} Words</span></p>
-          <p><strong>Release Date: </strong> <span class="value">{{ article.releaseDate }} </span></p>
+          <p><strong>Author:</strong><span class="value"> {{ article.author }}</span> </p>
+          <p><strong>Category: </strong> <span class="value">{{ article.categoryName }} </span></p>
+          <p><strong>Reading Time:  </strong> <span class="value">{{ article.readingTime }} mins</span> </p>
+          <p><strong>Word Count: </strong> <span class="value">{{ article.wordCount }}  Words</span></p>
+          <p><strong>Release Date: </strong> <span class="value">{{ formatDate(article.publishDate) }} </span></p>
         </div>
       </div>
 
@@ -29,6 +29,21 @@
 <script setup>
 import { useRouter } from 'vue-router';
 
+
+// 日期格式
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 const props = defineProps({
   article: {
     type: Object,
@@ -38,8 +53,7 @@ const props = defineProps({
 
 const router = useRouter();
 const goToDetail = () => {
-  router.push(`/article/${props.article.id}`);
-  // router.push(`/treeHole`);
+  router.push(`/article/${props.article.postID}`);
 };
 </script>
 

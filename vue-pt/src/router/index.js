@@ -18,9 +18,9 @@ const routes = [
                 component: () => import("@/views/User.vue"),
             },
             {
-                path: '/mall',
-                name: "mall",
-                component: () => import("@/views/Mall.vue"),
+                path: '/category',
+                name: "category",
+                component: () => import("@/views/CategoryManage.vue"),
             },
             {
                 path: '/articleManage',

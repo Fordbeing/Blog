@@ -127,12 +127,12 @@ const handleEdit = (row) => {
     mdAuthor.value = row.author
     text.value = row.content
     createTime.value = row.publishDate
-    if(text.value.length < 200){
+    if (text.value.length < 200) {
         source.value = 1
-    }else{
-        source.value = text.value.length / 200 
+    } else {
+        source.value = text.value.length / 200
     }
-    
+
     nextTick(() => {
         bottomElement.value.scrollIntoView({ behavior: 'smooth' });
     });
@@ -296,7 +296,7 @@ onMounted(() => {
 
 .table-section {
     margin-bottom: 20px;
-    
+
 }
 
 .article-details {
@@ -316,7 +316,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
 }
 
 .statistic-title {
@@ -331,7 +331,8 @@ onMounted(() => {
 }
 
 .editor {
-    height: 800px; /* Adjust height as needed */
+    height: 800px;
+    /* Adjust height as needed */
     margin-bottom: 20px;
 }
 

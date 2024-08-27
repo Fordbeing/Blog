@@ -58,11 +58,11 @@ const list = ref([
         url: 'Home'
     },
     {
-        path: '/mall',
-        name: 'mall',
-        label: '文章预览',
+        path: '/category',
+        name: 'category',
+        label: '分类管理',
         icon: 'video-play',
-        url: 'Mall'
+        url: 'Category'
     },
     {
         path: '/user',

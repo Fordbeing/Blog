@@ -5,11 +5,34 @@
 import { pa } from 'element-plus/es/locale/index.mjs'
 import request from './request'
 
-// 请求首页左侧的表格
 export default{
     getPostData: () => {
       return request({
         url: `/article/findByPage`,
+        method: 'get',
+      })
+    },
+    getCategoryInfo:() =>{
+      return request({
+        url: `/categoryInfo/getAllCategoryInfo`,
+        method: 'get',
+      })
+    },
+    getArticleListByName:(categoryName) =>{
+      return request({
+        url: `/articleList/getArticleListByName/${categoryName}`,
+        method: 'get',
+      })
+    },
+    getArticleList:() =>{
+      return request({
+        url: `/articleList/getArticleList`,
+        method: 'get',
+      })
+    },
+    getArticleDetailById:(postID) =>{
+      return request({
+        url: `/articleList/getArticleDetailById/${postID}`,
         method: 'get',
       })
     },

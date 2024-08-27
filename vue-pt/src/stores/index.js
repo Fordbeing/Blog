@@ -85,7 +85,31 @@ function initState(){
                 width:200
             },
             
-        ]
+        ],
+        // 分类标签
+        CategoryLabelData:[
+            {
+                prop:'categoryID',
+                label:'ID'
+            },
+            {
+                prop:'name',
+                label:'分类名称',
+                width:250
+            },
+            {
+                prop:'description',
+                label:'分类描述',
+                width: 200
+            },
+            {
+                prop:'createTime',
+                label:'创建时间',
+                width: 200
+            },
+            
+            
+        ],
     }
 }
 
