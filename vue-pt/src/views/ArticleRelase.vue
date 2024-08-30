@@ -6,14 +6,20 @@
                 <el-input placeholder="请输入文章标题" v-model="Title" ref="articleTitleInput"></el-input>
             </el-form-item>
             <el-form-item label="分类">
-                <el-input placeholder="请输入分类" v-model="Category" ref="articleCategoryInput"></el-input>
+                <el-select v-model="Category" placeholder="请选择分类" ref="articleCategoryInput" @change="handleCategoryChange">
+                    <el-option
+                        v-for="item in categories"
+                        :key="item.categoryID"
+                        :label="item.name"
+                        :value="item.name">
+                    </el-option>
+                </el-select>
             </el-form-item>
             <el-form-item label="作者">
                 <el-input placeholder="请输入作者名称" v-model="Author" ref="articleAuthorInput"></el-input>
             </el-form-item>
             <el-form-item class="summary-form-item">
-                <el-input type="textarea" placeholder="请输入简介" v-model="Summary" ref="articleSummaryInput"
-                    rows="4"></el-input>
+                <el-input type="textarea" placeholder="请输入简介" v-model="Summary" ref="articleSummaryInput" rows="4"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="handleGenerateSummary">生成简介</el-button>
@@ -30,13 +36,20 @@
     </div>
 </template>
 
+
+
 <script setup>
-import { ref, computed, getCurrentInstance, reactive } from 'vue'
+import { ref, computed, getCurrentInstance, reactive, onMounted } from 'vue'
 import { MdEditor } from 'md-editor-v3';
 import { ElMessage } from 'element-plus'
 import 'md-editor-v3/lib/style.css';
 
 const { proxy } = getCurrentInstance()
+
+const getCategoryList = async () => {
+    let data = await proxy.$api.getCategoryList()
+    categories.value = data
+};
 
 const text = ref('# Hello Editor');
 
@@ -49,6 +62,8 @@ const articleCategoryInput = ref(null)
 const articleAuthorInput = ref(null)
 const articleSummaryInput = ref(null)
 
+const categories = ref([]);
+
 const wordCount = computed(() => text.value.length);
 const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
 
@@ -60,7 +75,7 @@ const postDto = reactive({
     'summary': Summary,
     'readingTime': estimatedReadingTime,
     'wordCount': wordCount,
-    'categoryName': 'Java',
+    'categoryName': Category,
 })
 
 const handleRealse = () => {
@@ -72,7 +87,7 @@ const handleRealse = () => {
         articleTitleInput.value.focus()
     } else if (Category.value === '') {
         ElMessage({
-            message: '请输入分类！',
+            message: '请选择分类！',
             type: 'warning',
         })
         articleCategoryInput.value.focus()
@@ -88,7 +103,7 @@ const handleRealse = () => {
             type: 'warning',
         })
         articleSummaryInput.value.focus()
-    }else if (text.value === '# Hello Editor') {
+    } else if (text.value === '# Hello Editor') {
         ElMessage({
             message: '请输入内容！',
             type: 'warning',
@@ -111,9 +126,7 @@ const aiDto1 = reactive({
     'content': text,
 })
 
-
 const getSummary = async (aiDto1) => {
-
     try {
         let content = await proxy.$api.getSummary(aiDto1)
         Summary.value = content.content;
@@ -121,22 +134,30 @@ const getSummary = async (aiDto1) => {
 
         ElMessage({
             type: 'success',
-            message: 'completed',
+            message: '完成',
         });
     } catch (error) {
-        // 处理错误情况，例如显示错误信息  
         ElMessage({
             type: 'error',
-            message: 'failed: ' + error.message,
+            message: '失败: ' + error.message,
         });
     };
 }
 
-
 const handleGenerateSummary = () => {
     getSummary(aiDto1)
 }
+
+const handleCategoryChange = (value) => {
+    articleCategoryInput.value = value
+}
+
+onMounted(() => {
+    getCategoryList()
+})
 </script>
+
+
 
 <style scoped lang="less">
 .articleUpdateContainer {
@@ -149,7 +170,7 @@ const handleGenerateSummary = () => {
 }
 
 .articleUpdateHeader {
-    background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+    background: rgba(216, 209, 209, 0.8); /* 半透明背景 */
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
@@ -167,9 +188,17 @@ const handleGenerateSummary = () => {
 
 .el-input {
     border-radius: 8px;
-    background: #ffffff;
-    border: 1px solid #dcdfe6;
+    background: #9abfc4;
+    border: 1px solid #5a8f7f;
     padding: 10px;
+}
+
+.el-select{
+    border-radius: 8px;
+    background: #9abfc4;
+    border: 1px solid #5a8f7f;
+    padding: 10px;
+    width: 200px;
 }
 
 .el-input[type="textarea"] {
@@ -183,10 +212,10 @@ const handleGenerateSummary = () => {
 }
 
 .articleUpdateContent {
-    background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
+    background: rgba(187, 153, 153, 0.8); /* 半透明背景 */
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 8px rgba(26, 24, 24, 0.05);
 }
 
 .md-editor {

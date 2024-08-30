@@ -28,9 +28,18 @@ const routes = [
                 component: () => import("@/views/ArticleManage.vue"),
             },
             {
-                path: '/articleRelase',
-                name: "articleRelase",
+                path: '/articleRelease',
+                name: "articleRelease",
                 component: () => import("@/views/ArticleRelase.vue"),
+            }
+            ,{
+                path: '/articleUpdate',
+                name: "articleUpdate",
+                component: () => import("@/views/articleUpdate.vue"),
+            },{
+                path: '/person',
+                name: "person",
+                component: () => import("@/views/Person.vue"),
             }
         ]
     },

@@ -46,7 +46,9 @@
               <div class="info-item">
                 <span class="label">Action:</span>
                 <span class="value">点赞：{{ article.likes }} </span>
-                <span class="value">{{ }} share</span>
+                <span class="value">
+                  <el-button type="text" @click="shareLink" class="share-button">Share</el-button>
+                </span>
               </div>
             </div>
           </div>
@@ -78,10 +80,28 @@ import { ref, onMounted, computed } from 'vue';
 import Header from '../components/Header.vue';
 import { useRoute } from 'vue-router';
 import { MdPreview } from 'md-editor-v3';
+import { ElMessage, ElMessageBox } from 'element-plus'
 import 'md-editor-v3/lib/preview.css';
 import { onUnmounted, getCurrentInstance } from 'vue';
 const { proxy } = getCurrentInstance();
 
+
+// 分享文章
+const shareLink = () => {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    ElMessage({
+      type: 'success',
+      message: 'Link Copy Success',
+    });
+
+  }).catch((err) => {
+    ElMessage({
+      type: 'error',
+      message: 'Copy Failed',
+    });
+  });
+};
 
 
 // 日期格式
@@ -132,9 +152,10 @@ const articleId = route.params.id;
 const article = ref({});
 
 
-const getArticleDetailById =async (postID)=>{
-  const data  = await proxy.$api.getArticleDetailById(postID)
+const getArticleDetailById = async (postID) => {
+  const data = await proxy.$api.getArticleDetailById(postID)
   article.value = data
+  article.value.views += 1;
 
 }
 
@@ -145,6 +166,21 @@ onMounted(() => {
 </script>
 
 <style scoped>
+
+
+.share-button {
+  color: #17b3a6;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 0;
+}
+
+.share-button:hover {
+  color: #0d8a75;
+}
+
+
+
 .scroll-to-top {
   position: fixed;
   bottom: 100px;
@@ -177,11 +213,13 @@ onMounted(() => {
 }
 
 .el-main {
-  padding: 20px; /* 调整或恢复内边距，确保内容有足够的空间 */
+  padding: 20px;
+  /* 调整或恢复内边距，确保内容有足够的空间 */
 }
 
 .container {
-  min-height: 100vh; /* 确保容器至少与视口高度相同，允许滚动 */
+  min-height: 100vh;
+  /* 确保容器至少与视口高度相同，允许滚动 */
 }
 
 
@@ -235,6 +273,7 @@ onMounted(() => {
     transform: translateY(0);
     opacity: 1;
   }
+
   to {
     transform: translateY(-50px);
     opacity: 0;

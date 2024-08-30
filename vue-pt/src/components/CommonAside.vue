@@ -1,16 +1,20 @@
 <template>
     <el-aside :width="width">
-        <el-menu background-color="#545c64" text-color="#fff" :default-active="activeMenu" :collapse="isCollapse"
-            :collapse-transition="false">
+        <el-menu
+            background-color="#545c64"
+            text-color="#fff"
+            :default-active="activeMenu"
+            :collapse="isCollapse"
+            :collapse-transition="false"
+        >
             <h3 v-show="!isCollapse">PT后端管理器</h3>
             <h3 v-show="isCollapse">PT</h3>
             <el-menu-item v-for="item in noChildren" :key="item.path" :index="item.path" @click="handleEvent(item)">
-
                 <component class="icons" :is="item.icon"></component>
                 <span>{{ item.label }}</span>
             </el-menu-item>
 
-            <el-sub-menu v-for="item in hasChildren" :key="item.path" :index="item.path">
+            <el-sub-menu v-for="item in hasChildren" :key="item.path" :index="item.path" :collapse-transition="true">
                 <template #title>
                     <component class="icons" :is="item.icon"></component>
                     <span>{{ item.label }}</span>
@@ -18,16 +22,11 @@
                 <el-menu-item-group>
                     <el-menu-item v-for="(subItem, subIndex) in item.children" :key="subItem.path" :index="subItem.path"
                         @click="handleEvent(subItem)">
-
                         <component class="icons" :is="subItem.icon"></component>
                         <span>{{ subItem.label }}</span>
-
                     </el-menu-item>
                 </el-menu-item-group>
-
             </el-sub-menu>
-
-
         </el-menu>
     </el-aside>
 </template>
@@ -37,17 +36,16 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router';
 import { useAllDataStore } from '@/stores'
 
+const route = useRoute()
+const router = useRouter()
+
 const activeMenu = computed(() => {
     return route.path
 })
 
-const route = useRoute()
-const router = useRouter()
-
 const handleEvent = (item) => {
     clickMenu(item)
 }
-
 
 const list = ref([
     {
@@ -79,16 +77,23 @@ const list = ref([
             {
                 path: '/articleManage',
                 name: 'articleManage',
-                label: '文章修改',
-                icon: 'CollectionTag',
+                label: '文章管理',
+                icon: 'folder',
                 url: 'articleManage'
             },
             {
-                path: '/articleRelase',
-                name: 'articleRelase',
+                path: '/articleRelease',
+                name: 'articleRelease',
                 label: '文章发布',
-                icon: 'Notebook',
-                url: 'articleRelase'
+                icon: 'edit',
+                url: 'articleRelease'
+            },
+            {
+                path: '/articleUpdate',
+                name: 'articleUpdate',
+                label: '文章更新',
+                icon: 'refresh',
+                url: 'articleUpdate'
             }
         ]
     }
@@ -108,7 +113,6 @@ const clickMenu = (item) => {
     store.selectMenu(item)
 }
 </script>
-
 
 <style lang="less" scoped>
 .icons {

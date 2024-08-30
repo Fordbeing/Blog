@@ -12,10 +12,16 @@
         :width="item.width ? item.width : 125">
       </el-table-column>
 
+      <!-- 启用栏 -->
+      <el-table-column label="启用" width="100">
+        <template #default="{ row }">
+          <el-switch v-model="row.enabled" @change="handleStatusChange(row)"></el-switch>
+        </template>
+      </el-table-column>
+
       <!-- 操作列 -->
       <el-table-column label="操作" width="200">
         <template #default="{ row }">
-
           <el-button type="primary" size="small" @click="openAddCategoryDialog(row)">
             编辑
           </el-button>
@@ -45,6 +51,7 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, getCurrentInstance, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -54,7 +61,6 @@ const { proxy } = getCurrentInstance()
 const dataStore = useAllDataStore()
 
 const categoryLabel = dataStore.state.CategoryLabelData
-
 
 // 分类数据
 const categories = ref([])
@@ -70,15 +76,21 @@ const editingCategory = ref({ id: '', name: '' })
 // 打开添加分类对话框
 const openAddCategoryDialog = (category) => {
   if (category.categoryID !== undefined) {
-    // 在这里填写更新分类数据逻辑
-    newCategory.value = { categoryID: category.categoryID, name: category.name, description: category.description } // 到时候更新直接用这个就可以
+    newCategory.value = { categoryID: category.categoryID, name: category.name, description: category.description }
     console.log(newCategory.value.name)
   } else {
     newCategory.value = { categoryID: '', name: '', description: '' }
   }
   showAddDialog.value = true
-
 }
+
+// 处理启用状态的变化
+const handleStatusChange = (category) => {
+  const enable = category.enabled ? "1" : "0"
+  // 发送状态更新请求
+  updateCategoryStatus(category.categoryID, enable)
+}
+
 
 // 添加分类
 const HandleaddCategory = () => {
@@ -113,11 +125,12 @@ const handleDeleteCategory = (category) => {
     .then(() => {
       return deleteCategory(category.categoryID)
         .then(() => {
+          getCategoryList()
+
           ElMessage({
             type: 'success',
             message: 'Delete Success',
           });
-          // 在这里执行删除成功后的逻辑，例如从UI中移除该分类
         })
         .catch(err => {
           ElMessage({
@@ -138,11 +151,39 @@ const handleDeleteCategory = (category) => {
 const getCategoryList = async () => {
   const data = await proxy.$api.getCategoryList()
   console.log(data)
-  categories.value = data
+  categories.value = data.map(category => ({
+    ...category,
+    enabled: category.enable === 1
+  }))
+}
+
+
+
+const updateCategoryStatus = async (categoryID, status) => {
+
+  try {
+    await proxy.$api.updateCategoryStatus(categoryID, status)
+    if (status === "1") {
+      ElMessage({
+        type: 'success',
+        message: 'enabled Success',
+      });
+    } else {
+      ElMessage({
+        type: 'warning',
+        message: 'disabled Success',
+      });
+    }
+
+  } catch (error) {
+    ElMessage({
+      type: 'error',
+      message: 'enabled failed: ' + error.message,
+    });
+  }
 }
 
 const addCategory = async (category) => {
-
   try {
     await proxy.$api.addCategory(category)
     getCategoryList()
@@ -166,6 +207,7 @@ const deleteCategory = async (categoryID) => {
 const updateCategory = async (category) => {
   try {
     await proxy.$api.updateCategory(category)
+    getCategoryList()
     ElMessage({
       type: 'success',
       message: 'Update Success',
@@ -176,10 +218,7 @@ const updateCategory = async (category) => {
       message: 'Update Failed: ' + error.message,
     });
   }
-
 }
-
-
 
 // 重置表单
 const resetForm = () => {
@@ -190,8 +229,8 @@ const resetForm = () => {
 onMounted(() => {
   getCategoryList()
 })
-
 </script>
+
 
 <style scoped lang="less">
 .category-management {

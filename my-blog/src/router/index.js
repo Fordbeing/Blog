@@ -9,10 +9,15 @@ const routes = [
     path: '/article/:id',
     component: () => import("@/views/ArticleDetail.vue"),
   },
-  
+
   {
-    path:'/treeHole',
+    path: '/treeHole',
     component: () => import("@/views/TreeHole.vue"),
+  }, 
+  {
+    path: '/person',
+    name: "person",
+    component: () => import("@/views/Person.vue"),
   }
 ];
 

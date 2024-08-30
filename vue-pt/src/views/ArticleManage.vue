@@ -28,6 +28,17 @@
                 <el-table :data="postData.list" style="width: 100%">
                     <el-table-column v-for="item in tableLabel" :prop="item.prop" :label="item.label"
                         :width="item.width ? item.width : 125" />
+
+
+
+
+                    <!-- 启用栏 -->
+                    <el-table-column label="热门" width="100">
+                        <template #default="{ row }">
+                            <el-switch v-model="row.enabled" @change="handleStatusChange(row)"></el-switch>
+                        </template>
+                    </el-table-column>
+
                     <el-table-column fixed="right" label="操作" min-width="200">
                         <template v-slot:default="scope">
                             <el-button size="small" @click="handleClick">
@@ -46,45 +57,7 @@
                 </div>
             </div>
 
-            <div class="article-details">
-                <el-row class="details-row">
-                    <el-col :span="6" class="details-item">
-                        <el-statistic :value="mdTitle">
-                            <template #title>
-                                <div class="statistic-title">文章标题</div>
-                            </template>
-                        </el-statistic>
-                    </el-col>
-                    <el-col :span="6" class="details-item">
-                        <el-statistic :value="mdAuthor">
-                            <template #title>
-                                <div class="statistic-title">作者</div>
-                            </template>
-                        </el-statistic>
-                    </el-col>
-                    <el-col :span="6" class="details-item">
-                        <el-statistic :value="outputValue">
-                            <template #title>
-                                <div class="statistic-title">预估阅读时长</div>
-                            </template>
-                        </el-statistic>
-                    </el-col>
-                    <el-col :span="6" class="details-item">
-                        <el-statistic :value="createTime">
-                            <template #title>
-                                <div class="statistic-title">创建时间</div>
-                            </template>
-                        </el-statistic>
-                    </el-col>
-                </el-row>
-            </div>
-
-            <div class="article-content">
-                <md-editor v-model="text" :config="editorConfig" theme="dark" class="editor" />
-                <div class="update-btn">
-                    <el-button type="primary" @click="handleUpdate" size="large">修改</el-button>
-                </div>
-            </div>
+            
         </el-main>
     </el-container>
 </template>
@@ -102,6 +75,21 @@ const mdTitle = ref('');
 const mdAuthor = ref('')
 const createTime = ref('')
 
+
+// 日期格式
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 const source = ref(0)
 const outputValue = useTransition(source, {
     duration: 1500,
@@ -109,6 +97,9 @@ const outputValue = useTransition(source, {
 
 
 const { proxy } = getCurrentInstance()
+
+
+
 
 const store = useAllDataStore()
 
@@ -138,6 +129,38 @@ const handleEdit = (row) => {
     });
 }
 
+
+
+// 启用热点
+const handleStatusChange = (row) => {
+    const enable = row.enabled ? "1" : "0";
+    updatePostStatus(row.postID, enable);
+}
+
+const updatePostStatus = async(postID,status) =>{
+
+    try {
+        await proxy.$api.updatePostStatus(postID,status)
+    if (status === "1") {
+      ElMessage({
+        type: 'success',
+        message: 'enabled Success',
+      });
+    } else {
+      ElMessage({
+        type: 'warning',
+        message: 'disabled Success',
+      });
+    }
+  } catch (error) {
+    ElMessage({
+      type: 'error',
+      message: 'enabled failed: ' + error.message,
+    });
+  }
+  
+}
+
 const handleClear = () => {
     globalID.value = ''
     Title.value = ''
@@ -161,6 +184,9 @@ const handlePage = () => {
 const handleUpdate = () => {
     let data = {
         postID: globalID.value,
+        author: mdAuthor.value,
+        readingTime: source.value,
+        wordCount: text.value.length,
         title: mdTitle.value,
         content: text.value,
     }
@@ -173,7 +199,7 @@ const handleSearch = async () => {
     if (Title.value === '' && Author.value === '') {
         data = await getPostData(0, 10);
         postData.list = data.list;
-        configA.total = data.total;  // 确保这里的 total 被正确设置
+        configA.total = data.total;
     } else {
         data = await GetPostByTitle(Title, Author);
     }
@@ -219,12 +245,24 @@ const postData = reactive({
     list: []
 });
 
+// 启用热点// 确保 postData.list 正确设置了 enabled 属性
 const getPostData = async (current, limit) => {
-    let data = await proxy.$api.getPostData(current, limit);
-    console.log(data);
-    postData.list = data.list;
-    configA.total = data.total;  // 确保这里的 total 被正确设置
+    try {
+        let data = await proxy.$api.getPostData(current, limit);
+        console.log(data)
+        // 处理 data.list，将 hotArticle 转换为 true 或 false
+        postData.list = data.list.map(post => ({
+            ...post,
+            publishDate: formatDate(post.publishDate),
+            enabled: post.hotArticle === 1
+        }));
+
+        configA.total = data.total;  // 确保这里的 total 被正确设置
+    } catch (error) {
+        console.error('Failed to fetch post data:', error);
+    }
 }
+
 
 const deletePostData = async (id) => {
     try {
@@ -276,7 +314,7 @@ onMounted(() => {
 
 <style scoped lang="less">
 .el-container {
-    min-height: 100vh;
+    height: 100%;
 }
 
 .header {
@@ -299,48 +337,7 @@ onMounted(() => {
 
 }
 
-.article-details {
-    margin-bottom: 20px;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
 
-.details-row {
-    margin: 0;
-    padding: 0;
-}
-
-.details-item {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-}
-
-.statistic-title {
-    font-size: 20px;
-    color: #3cc4ce;
-    font-weight: bold;
-}
-
-.article-content {
-    // padding: 20px;
-    background: #f9f9f9;
-}
-
-.editor {
-    height: 800px;
-    /* Adjust height as needed */
-    margin-bottom: 20px;
-}
-
-.update-btn {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
 
 .pager {
     margin-top: 20px;
@@ -351,25 +348,5 @@ onMounted(() => {
     justify-content: center;
 }
 
-.article-head,
-.article-detail {
-    background: rgba(255, 255, 255, 0.8);
-}
 
-.scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-}
-
-.scrollbar::-webkit-scrollbar {
-    width: 8px;
-}
-
-.scrollbar::-webkit-scrollbar-thumb {
-    background-color: transparent;
-}
-
-.scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
 </style>

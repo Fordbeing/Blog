@@ -112,6 +112,17 @@ export default{
         data: category
       })
     },
-    
+    updateCategoryStatus: (categoryID,status) => {  // 更新分类状态
+      return request({
+        url: `/category/updateCategoryStatus/${categoryID}/${status}`,
+        method: 'put',
+      })
+    },
+    updatePostStatus: (postID,status) => {  // 更新分类状态
+      return request({
+        url: `/article/updatePostStatus/${postID}/${status}`,
+        method: 'put',
+      })
+    },
     
 }

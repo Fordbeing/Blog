@@ -60,7 +60,12 @@ function initState(){
             {
                 prop:'title',
                 label:'标题',
-                width:250
+                width:220
+            },
+            {
+                prop:'categoryName',
+                label:'分类名称',
+                width: 180
             },
             {
                 prop:'likes',
@@ -90,22 +95,23 @@ function initState(){
         CategoryLabelData:[
             {
                 prop:'categoryID',
-                label:'ID'
+                label:'ID',
+                width: 200
             },
             {
                 prop:'name',
                 label:'分类名称',
-                width:250
+                width:400
             },
             {
                 prop:'description',
                 label:'分类描述',
-                width: 200
+                width: 400
             },
             {
                 prop:'createTime',
                 label:'创建时间',
-                width: 200
+                width: 300
             },
             
             

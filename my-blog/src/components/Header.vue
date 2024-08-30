@@ -52,9 +52,13 @@ const dataStore = useAllDataStore()
 const searchQuery = ref('');
 const router = useRouter();
 
+// 设置 activeIndex 为 null 或空字符串，确保没有菜单项被默认选中
+const activeIndex = ref(null);
+
 const goHome = () => {
   dataStore.updateCategory('');
   router.push('/');
+  activeIndex.value = null; // 点击 Home 时取消选中
 };
 
 const goTreeHole = () => {
@@ -65,23 +69,23 @@ const goPerson = () => {
   router.push('/person');
 };
 
-const activeIndex = ref('1')
-
 const handleSelect = (key, keyPath) => {
   dataStore.updateCategory('');
+  activeIndex.value = key; // 更新选中项
 }
 
-// 用于更新文章
 const handleSelectArticle = (key, keyPath) => {
-  const selectedCategory = categoryData.value.find((_, i) => i + 4 === parseInt(key));
+  const selectedCategory = categoryData.value.find((_, i) => i === parseInt(key));
   if (selectedCategory) {
     dataStore.updateCategory(selectedCategory.name);
+    activeIndex.value = key; // 更新选中项
   }
 }
 
 const selectCategory = (category) => {
   dataStore.updateCategory(category);
-  router.push('/')
+  router.push('/');
+  activeIndex.value = null; // 点击分类后取消选中状态
 };
 
 const handleSearch = () => {
@@ -92,13 +96,15 @@ const categoryData = ref([]);
 
 const getCategoryInfo = async () => {
   const data = await proxy.$api.getCategoryInfo();
-  categoryData.value = data;  
+  console.log(data);
+  categoryData.value = data;
 }
 
 onMounted(() => {
   getCategoryInfo();
 })
 </script>
+
 
 <style scoped>
 .category-item {
