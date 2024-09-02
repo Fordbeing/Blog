@@ -6,7 +6,7 @@
     @select="handleSelect"
   >
     <!-- Home Button -->
-    <el-menu-item class="home" index="1" @click="goHome">Home</el-menu-item>
+    <el-menu-item class="home" index="12" @click="goHome">Home</el-menu-item>
 
     <!-- Logo (just as text here, can be replaced with an image if needed) -->
     <el-menu-item index="2" class="logo-item">
@@ -14,7 +14,7 @@
     </el-menu-item>
 
     <!-- Category Dropdown -->
-    <el-sub-menu index="3" class="category" @select="handleSelectArticle">
+    <el-sub-menu index="13" class="category" @select="handleSelectArticle">
       <template #title><span class="category-title">Category</span></template>
       <el-menu-item 
         v-for="(category, index) in categoryData" 
@@ -27,10 +27,10 @@
     </el-sub-menu>
 
     <!-- Tree Hole Button -->
-    <el-menu-item index="4" class="treehole" @click="goTreeHole">Tree Hole</el-menu-item>
+    <el-menu-item index="14" class="treehole" @click="goTreeHole">Tree Hole</el-menu-item>
 
     <!-- Person Button -->
-    <el-menu-item index="5" class="person" @click="goPerson">Person</el-menu-item>
+    <el-menu-item index="15" class="person" @click="goPerson">Person</el-menu-item>
 
     <!-- Search Input -->
     <div class="search-container">
@@ -63,10 +63,12 @@ const goHome = () => {
 
 const goTreeHole = () => {
   router.push('/treehole');
+  activeIndex.value = null; // 点击 Home 时取消选中
 };
 
 const goPerson = () => {
   router.push('/person');
+  activeIndex.value = null; // 点击 Home 时取消选中
 };
 
 const handleSelect = (key, keyPath) => {
@@ -178,6 +180,11 @@ onMounted(() => {
   max-width: 250px;
   margin-right: 10px;
 }
+.el-menu-demo {
+  border: none;
+  box-shadow: none;
+}
+
 
 .search-button {
   background: linear-gradient(45deg, #424446, #8a5779);

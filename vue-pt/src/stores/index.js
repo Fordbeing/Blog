@@ -116,6 +116,31 @@ function initState(){
             
             
         ],
+        // 评论管理标签
+        CommentLabelData:[
+            {
+                prop:'commentID',
+                label:'ID',
+                width: 200
+            },
+            {
+                prop:'author',
+                label:'作者',
+                width:300
+            },
+            {
+                prop:'email',
+                label:'邮箱',
+                width: 400
+            },
+            {
+                prop:'date',
+                label:'创建时间',
+                width: 300
+            },
+            
+            
+        ],
     }
 }
 

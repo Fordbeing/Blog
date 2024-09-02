@@ -1,12 +1,7 @@
 <template>
     <el-aside :width="width">
-        <el-menu
-            background-color="#545c64"
-            text-color="#fff"
-            :default-active="activeMenu"
-            :collapse="isCollapse"
-            :collapse-transition="false"
-        >
+        <el-menu background-color="#545c64" text-color="#fff" :default-active="activeMenu" :collapse="isCollapse"
+            :collapse-transition="false">
             <h3 v-show="!isCollapse">PT后端管理器</h3>
             <h3 v-show="isCollapse">PT</h3>
             <el-menu-item v-for="item in noChildren" :key="item.path" :index="item.path" @click="handleEvent(item)">
@@ -88,15 +83,17 @@ const list = ref([
                 icon: 'edit',
                 url: 'articleRelease'
             },
-            {
-                path: '/articleUpdate',
-                name: 'articleUpdate',
-                label: '文章更新',
-                icon: 'refresh',
-                url: 'articleUpdate'
-            }
+
+
         ]
-    }
+    },
+    {
+        path: '/commentManage',
+        name: 'commentManage',
+        label: '评论管理',
+        icon: 'edit',
+        url: 'commentManage'
+    },
 ])
 
 const noChildren = computed(() => list.value.filter(item => !item.children))

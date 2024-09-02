@@ -118,10 +118,28 @@ export default{
         method: 'put',
       })
     },
-    updatePostStatus: (postID,status) => {  // 更新分类状态
+    updatePostStatus: (postID,status) => {  // 更新文章状态
       return request({
         url: `/article/updatePostStatus/${postID}/${status}`,
         method: 'put',
+      })
+    },
+    getAllComment: () => {  // 得到所有评论
+      return request({
+        url: `/comment/getAllComment`,
+        method: 'get',
+      })
+    },
+    UpdateCommentStatus: (commentID,status) => {  // 更新评论状态
+      return request({
+        url: `/comment/UpdateCommentStatus/${commentID}/${status}`,
+        method: 'put',
+      })
+    },
+    DeleteComment: (commentID) => {  // 删除评论
+      return request({
+        url: `/comment/DeleteComment/${commentID}`,
+        method: 'delete',
       })
     },
     

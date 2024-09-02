@@ -1,232 +1,145 @@
 <template>
-    <el-container>
-      <el-header>
-        <Header />
-      </el-header>
-  
-      <el-main>
-        <div class="container">
-          <div class="comment-section">
-            <!-- 弹幕区域 -->
-            <div class="danmaku-container">
-              <transition-group name="danmaku" tag="div">
-                <div
-                  v-for="(comment, index) in comments"
-                  :key="index"
-                  class="danmaku-item"
-                  :style="{ top: comment.top + 'px', left: comment.left + 'px' }"
-                >
-                  <span>{{ comment.text }}</span>
-                  <el-button 
-                    type="primary" 
-                    icon="el-icon-thumb" 
-                    @click="likeComment(index)" 
-                    size="mini" 
-                    class="like-button"
-                  ></el-button>
+  <el-container>
+    <el-header>
+      <Header />
+    </el-header>
+
+    <el-main>
+      <div class="container">
+        <!-- 照片展示区域 -->
+        <div class="photo-section">
+          <el-row :gutter="20">
+            <el-col :span="5" v-for="(photo, index) in photos" :key="index" class="photo-col">
+              <el-card :body-style="{ padding: '0px' }" class="photo-card" @click="openDialog(photo)">
+                <img :src="photo.url" class="photo-image" />
+                <div class="photo-info">
+                  <span class="photo-title">{{ photo.title }}</span>
                 </div>
-              </transition-group>
-            </div>
-  
-            <!-- 评论发表区域 -->
-            <div class="comment-input">
-              <el-input 
-                v-model="newComment" 
-                placeholder="Enter your comment..." 
-                class="comment-box"
-              ></el-input>
-              <el-button 
-                type="primary" 
-                @click="submitComment" 
-                class="submit-button"
-              >Submit</el-button>
-            </div>
-          </div>
+              </el-card>
+            </el-col>
+          </el-row>
         </div>
-      </el-main>
-  
-      <el-button  
-        type="primary"  
-        icon="el-icon-arrow-up"  
-        v-show="isScrolled"  
-        @click="scrollToTop"  
-        class="scroll-to-top"  
-      >  
-        Top 
-      </el-button>  
-    </el-container>
-  </template>
-  
-  <script setup>
-  import { ref, onMounted, onUnmounted } from 'vue';
-  import Header from '../components/Header.vue';
-  
-  const isScrolled = ref(false);
-  const comments = ref([]);
-  const newComment = ref('');
-  const intervalId = ref(null);
-  
-  // Handle scroll event
-  const handleScroll = () => {
-    isScrolled.value = window.scrollY > 100;
-  };
-  
-  // Scroll to top function
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-  
-  // Handle adding a new comment
-  const submitComment = () => {
-    if (newComment.value.trim() !== '') {
-      comments.value.push({
-        text: newComment.value,
-        top: Math.random() * (window.innerHeight / 2), // 只在屏幕的上半部分随机出现
-        left: window.innerWidth,
-        speed: 1, // 固定速度
-      });
-      newComment.value = '';
-  
-      // 立即移动新添加的弹幕
-      moveDanmaku();
-  
-      // 如果没有定时器，则创建一个
-      if (!intervalId.value) {
-        intervalId.value = setInterval(() => {
-          moveDanmaku();
-        }, 16);
-      }
-    }
-  };
-  
-  // Move the danmaku
-  const moveDanmaku = () => {
-    comments.value.forEach((comment, index) => {
-      comment.left -= comment.speed;
-      if (comment.left < -200) {
-        comments.value.splice(index, 1);
-      }
-    });
-  
-    // 如果没有弹幕，则停止定时器
-    if (comments.value.length === 0) {
-      clearInterval(intervalId.value);
-      intervalId.value = null;
-    }
-  };
-  
-  // Like comment function
-  const likeComment = (index) => {
-    alert(`Liked comment: ${comments.value[index].text}`);
-  };
-  
-  // Setup intervals and event listeners
-  onMounted(() => {
-    window.addEventListener('scroll', handleScroll);
-  });
-  
-  onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll);
-    if (intervalId.value) {
-      clearInterval(intervalId.value);
-    }
-  });
-  </script>
-  
-  <style scoped>
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: calc(100vh - 60px);
-    background-image: url('@/assets/img/ArticleDetailBack.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+      </div>
+
+      <!-- 图片放大展示弹窗 -->
+      <el-dialog v-model="dialogVisible" :before-close="handleClose" class="dialog-container">
+        <img :src="selectedPhoto?.url" class="dialog-image" ref="dialogImage" />
+      </el-dialog>
+    </el-main>
+  </el-container>
+</template>
+
+<script setup>
+import { ref, onUpdated } from 'vue';
+import Header from '../components/Header.vue';
+
+const photos = ref([
+  { url: 'https://cdn.pixabay.com/photo/2016/11/29/04/23/little-girl-1867297_640.jpg', title: '照片 1' },
+  { url: 'http://sj4yi8qby.hd-bkt.clouddn.com/personBack.png?e=1725198078&token=-vMAs8IW8oZeUbaUtjRtUR9qh292_fMkreo7iPwT:sGa1T-GwFriY8iHef0HvGq2aloQ=', title: '照片 2' },
+  { url: 'https://cdn.pixabay.com/photo/2016/11/29/04/54/photographer-1867417_640.jpg', title: '照片 3' },
+  { url: 'https://cdn.pixabay.com/photo/2022/08/28/18/03/dog-7417233_640.jpg', title: '照片 1' },
+  { url: 'https://cdn.pixabay.com/photo/2016/12/23/12/40/night-1927265_640.jpg', title: '照片 2' },
+  { url: 'https://haowallpaper.com/link/common/file/previewFileImg/15189043253972288', title: '照片 1' },
+  { url: 'https://haowallpaper.com/link/common/file/previewFileImg/15189043253972288', title: '照片 2' },
+  { url: 'https://cdn.pixabay.com/photo/2022/11/09/21/12/candle-7581472_640.jpg', title: '照片 3' },
+  { url: 'https://haowallpaper.com/link/common/file/previewFileImg/15189043253972288', title: '照片 1' },
+  { url: 'https://img.tukuppt.com/bg_grid/00/12/95/Slv0hNR0gN.jpg!/fh/350', title: '照片 2' },
+]);
+
+const dialogVisible = ref(false);
+const selectedPhoto = ref(null);
+const dialogImage = ref(null);
+
+const openDialog = (photo) => {
+  selectedPhoto.value = photo;
+  dialogVisible.value = true;
+};
+
+const handleClose = () => {
+  dialogVisible.value = false;
+};
+
+// 使用 onUpdated 钩子来处理弹窗打开后的图片尺寸调整
+onUpdated(() => {
+  if (dialogVisible.value && dialogImage.value) {
+    const img = dialogImage.value;
+    img.onload = () => {
+      img.style.maxHeight = 'none';
+      img.style.width = '100%';
+    };
   }
-  
-  .comment-section {
-    position: relative;
-    width: 100%;
-    height: 500px;
-  }
-  
-  .danmaku-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  
-  .danmaku-item {
-    position: absolute;
-    white-space: nowrap;
-    font-size: 20px;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-  }
-  
-  .like-button {
-    margin-left: 10px;
-  }
-  
-  .comment-input {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 650px;
-  }
-  
-  .el-main {
-    padding: 0px;
-  }
-  
-  .comment-box {
-    max-width: 400px;
-    margin-right: 10px;
-  }
-  
-  .submit-button {
-    background: linear-gradient(135deg, #815f5f, #8d3636);
-    color: #fff;
-    border-radius: 20px;
-    padding: 10px 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .scroll-to-top {
-    position: fixed;
-    bottom: 100px;
-    right: 150px;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #815f5f, #8d3636);
-    color: #241036;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
-    z-index: 1000;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 25px;
-    display: flex;
-    align-items: center;
-    font-weight: bold;
-    justify-content: center;
-    padding: 0;
-  }
-  
-  .scroll-to-top:hover {
-    background: linear-gradient(135deg, #50697a, #174385);
-    transform: scale(1.1);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  }
-  </style>
-  
+});
+</script>
+
+<style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100vh - 60px);
+  background-image: url('@/assets/img/back.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.el-main {
+  padding: 0;
+}
+
+.photo-section {
+  padding: 20px; /* 去掉额外的内边距 */
+  margin-left: 200px; /* 去掉左边距 */
+}
+
+.photo-col {
+  padding: 0; /* 去掉列的内边距 */
+  margin-bottom: 20px; /* 去掉底部外边距 */
+}
+
+.photo-card {
+  border: none; /* 去掉边框 */
+  border-radius: 0; /* 如果有圆角边框的话也去掉 */
+  box-shadow: none; /* 去掉阴影效果 */
+  height: 100%; /* 让卡片高度填充父元素 */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0; /* 去掉内边距 */
+}
+
+.photo-card:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.photo-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  margin: 0; /* 去掉外边距 */
+  padding: 0; /* 去掉内边距 */
+  box-sizing: border-box; /* 确保包括边框和内边距 */
+}
+
+.photo-info {
+  padding: 10px;
+  text-align: center;
+}
+
+.photo-title {
+  font-size: 16px;
+  color: #333;
+}
+
+
+.dialog-container .el-dialog {
+  padding: 0;
+}
+
+.dialog-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+</style>

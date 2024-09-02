@@ -36,7 +36,27 @@ export default{
         method: 'get',
       })
     },
+    // 获取评论
+    getAllComment:() =>{
+      return request({
+        url: `/comment/getAllComment`,
+        method: 'get',
+      })
+    },
+    // 添加评论
+    addComment:(comment) =>{
+      return request({
+        url: `/comment/addComment`,
+        method: 'post',
+        data: comment
+      })
+    },
+    // 分页获取评论
     
-    
-    
+    getComments:(pageNum,pageSize) =>{
+      return request({
+        url: `/comment/getComments/${pageNum}/${pageSize}`,
+        method: 'get',
+      })
+    },
 }

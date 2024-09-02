@@ -32,15 +32,13 @@ const routes = [
                 name: "articleRelease",
                 component: () => import("@/views/ArticleRelase.vue"),
             }
-            ,{
-                path: '/articleUpdate',
-                name: "articleUpdate",
-                component: () => import("@/views/articleUpdate.vue"),
-            },{
-                path: '/person',
-                name: "person",
-                component: () => import("@/views/Person.vue"),
+            ,
+            {
+                path: '/commentManage',
+                name: "commentManage",
+                component: () => import("@/views/CommentManage.vue"),
             }
+            
         ]
     },
 ]

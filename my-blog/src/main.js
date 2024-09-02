@@ -7,6 +7,7 @@ import 'element-plus/dist/index.css';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import { createPinia } from 'pinia';
 import api from "@/api/api"
+import InfiniteScroll from 'vue-infinite-scroll';
 
 const pinia = createPinia()
 
@@ -19,5 +20,6 @@ app.config.globalProperties.$api = api
 app.use(pinia)
 app.use(ElementPlus)
 app.use(router)
+app.use(InfiniteScroll);
 
 app.mount('#app')
