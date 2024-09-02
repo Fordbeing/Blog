@@ -39,7 +39,7 @@ vue-pt是后台的前端页面，my-blog是用户使用的前端页面，后端�
 #### 文章发布
 对文章发布进行了更新，增加了文章分类和标签，并且对文章发布页面进行了优化
 还增加了简介功能，调用AI的接口，自动生成简介。
-![alt text](vue-pt/vue-pt-picture/ArticleRelease.png)
+![alt text](vue-pt/vue-pt-picture/articleRelease.png)
 
 ## 后端暂时就是这样的页面，后续再增加
 
