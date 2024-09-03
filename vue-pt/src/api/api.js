@@ -142,5 +142,66 @@ export default{
         method: 'delete',
       })
     },
+    getAllPicture: () => {  // 得到所有图片
+      return request({
+        url: `/fileUpload/getAllPicture`,
+        method: 'get',
+      })
+    },
+    UpdatePictureStatus: (imageId,status) => {  // 更新图片状态
+      return request({
+        url: `/fileUpload/UpdatePictureStatus/${imageId}/${status}`,
+        method: 'put',
+      })
+    },
+    DeletePicture: (imageId) => {  // 删除图片
+      return request({
+        url: `/fileUpload/DeletePicture/${imageId}`,
+        method: 'delete',
+      })
+    },
+    UploadPicture(picture) {
+      return request({
+        url: `/fileUpload/UploadPicture`,
+        method: 'post',
+        data: picture,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    },
+    // 图片分类管理
+    getPictureCategoryList: () => {  // 获取分类列表
+      return request({
+        url: `/pictureCategory/getPictureCategoryList`,
+        method: 'get',
+      })
+    },
+    addPictureCategory: (category) => {  // 添加分类
+      return request({
+        url: `/pictureCategory/addPictureCategory`,
+        method: 'post',
+        data: category
+      })
+    },
+    deletePictureCategory: (categoryID) => {  // 删除分类
+      return request({
+        url: `/pictureCategory/deletePictureCategory/${categoryID}`,
+        method: 'delete',
+      })
+    },
+    updatePictureCategory: (category) => {  // 更新分类
+      return request({
+        url: `/pictureCategory/updatePictureCategory`,
+        method: 'put',
+        data: category
+      })
+    },
+    updatePictureCategoryStatus: (categoryID,status) => {  // 更新分类状态
+      return request({
+        url: `/pictureCategory/updatePictureCategoryStatus/${categoryID}/${status}`,
+        method: 'put',
+      })
+    },
     
 }

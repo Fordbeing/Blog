@@ -314,7 +314,8 @@ onMounted(() => {
 
 <style scoped lang="less">
 .el-container {
-    height: 100%;
+    padding: 0px;
+    height: auto;
 }
 
 .header {

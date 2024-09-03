@@ -26,7 +26,7 @@ function initState(){
             {
                 prop:'avatar',
                 label:'头像',
-                width: 200
+                width: 400
             },
             {
                 prop:'email',
@@ -42,7 +42,7 @@ function initState(){
             {
                 prop:'permissions',
                 label:'权限',
-                width:50
+                width:100
             }
             ,
             {
@@ -137,6 +137,41 @@ function initState(){
                 prop:'date',
                 label:'创建时间',
                 width: 300
+            },
+            
+            
+        ],
+        // 图片管理标签
+        PictureLabelData:[
+            {
+                prop:'imageId',
+                label:'ID',
+                width: 100
+            },
+            {
+                prop:'filename',
+                label:'图片名称',
+                width:100
+            },
+            {
+                prop:'filepath',
+                label:'图片',
+                width:400
+            },
+            {
+                prop:'description',
+                label:'图片描述',
+                width: 300
+            },
+            {
+                prop:'category',
+                label:'图片分类',
+                width: 80
+            },
+            {
+                prop:'uploadTime',
+                label:'上传时间',
+                width: 200
             },
             
             

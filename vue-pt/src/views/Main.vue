@@ -31,6 +31,8 @@ import CommonTag from '@/components/CommonTag.vue'
 .common-layout,
 .lay-container {
     height: 100%;
+    background-color: rgb(114, 120, 138);
+    // background: url('@/assets/images/back.png') no-repeat center center fixed;
 }
 
 .lay-header {

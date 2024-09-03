@@ -4,6 +4,7 @@
             :collapse-transition="false">
             <h3 v-show="!isCollapse">PT后端管理器</h3>
             <h3 v-show="isCollapse">PT</h3>
+
             <el-menu-item v-for="item in noChildren" :key="item.path" :index="item.path" @click="handleEvent(item)">
                 <component class="icons" :is="item.icon"></component>
                 <span>{{ item.label }}</span>
@@ -51,20 +52,6 @@ const list = ref([
         url: 'Home'
     },
     {
-        path: '/category',
-        name: 'category',
-        label: '分类管理',
-        icon: 'video-play',
-        url: 'Category'
-    },
-    {
-        path: '/user',
-        name: 'user',
-        label: '用户管理',
-        icon: 'user',
-        url: 'User'
-    },
-    {
         path: 'other',
         label: '文章管理',
         icon: 'Monitor',
@@ -82,11 +69,38 @@ const list = ref([
                 label: '文章发布',
                 icon: 'edit',
                 url: 'articleRelease'
-            },
-
-
+            }
         ]
     },
+    {
+        path: 'category',
+        label: '分类管理',
+        icon: 'video-play',
+        children: [
+            {
+                path: '/category',
+                name: 'category',
+                label: '文章分类管理',
+                icon: 'video-play',
+                url: 'Category'
+            },
+            {
+                path: '/pictureCategoryManage',
+                name: 'pictureCategoryManage',
+                label: '图片分类管理',
+                icon: 'picture',
+                url: 'pictureCategoryManage'
+            }
+        ]
+    },
+    {
+        path: '/user',
+        name: 'user',
+        label: '用户管理',
+        icon: 'user',
+        url: 'User'
+    },
+    
     {
         path: '/commentManage',
         name: 'commentManage',
@@ -94,6 +108,13 @@ const list = ref([
         icon: 'edit',
         url: 'commentManage'
     },
+    {
+        path: '/uploadPictureManage',
+        name: 'uploadPictureManage',
+        label: '图片管理',
+        icon: 'edit',
+        url: 'uploadPictureManage'
+    }
 ])
 
 const noChildren = computed(() => list.value.filter(item => !item.children))
