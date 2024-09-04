@@ -1,5 +1,4 @@
 <template>
-    <div class="category-management">
         <div class="header">
             <h2>评论管理</h2>
             <!-- 添加按钮 -->
@@ -100,7 +99,6 @@
                 <el-button type="primary" @click="handleAddPicture">确定</el-button>
             </template>
         </el-dialog>
-    </div>
 </template>
 
 <script setup>
@@ -161,8 +159,8 @@ const categories = ref({})
 
     
 // 得到所有分类
-const getPictureCategoryList = async() =>{
-    const data =  await proxy.$api.getPictureCategoryList()
+const FileGetPictureCategoryList = async() =>{
+    const data =  await proxy.$api.FileGetPictureCategoryList()
     categories.value = data
 
 }
@@ -347,16 +345,11 @@ const handleClearData = () => {
 
 onMounted(() => {
     getAllPicture()
-    getPictureCategoryList()
+    FileGetPictureCategoryList()
 })
 </script>
 
 <style scoped lang="less">
-.category-management {
-    padding: 20px;
-    background: #f5f5f5;
-    border-radius: 8px;
-}
 
 .header {
     display: flex;

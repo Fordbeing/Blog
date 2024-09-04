@@ -1,5 +1,4 @@
 <template>
-    <div class="category-management">
       <div class="header">
         <h2>分类管理</h2>
         <el-button type="primary" @click="openAddCategoryDialog">添加分类</el-button>
@@ -53,7 +52,7 @@
           <el-button type="primary" @click="HandleaddCategory">确定</el-button>
         </template>
       </el-dialog>
-    </div>
+
   </template>
   
   
@@ -257,11 +256,7 @@ const handlePage = () => {
   
   
   <style scoped lang="less">
-  .category-management {
-    padding: 20px;
-    background: #f5f5f5;
-    border-radius: 8px;
-  }
+  
   
   .header {
     display: flex;

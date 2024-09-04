@@ -18,8 +18,15 @@
     <div class="table">
         <el-table :data="userData.list" style="width: 100%" border stripe>
             <el-table-column v-for="item in tableLabel" :prop="item.prop" :label="item.label"
-                :width="item.width ? item.width : 125" />
-
+                :width="item.width ? item.width : 125" >
+                <!-- 展示图片 -->
+                <!-- <template v-if="item.prop === 'avatar'" #default="{ row }">
+                    <img :src="row.avatar" alt="图片" style="max-width: 400px; max-height: 200px;" />
+                </template>
+                <template v-else #default="{ row }">
+                    {{ row[item.prop] }}
+                </template> -->
+            </el-table-column>
             <el-table-column fixed="right" label="操作" min-width="160">
                 <template v-slot:default="scope">
                     <el-button size="small" @click="handleClick" plain>查看</el-button>
@@ -42,22 +49,41 @@
             <el-row gutter="20">
                 <el-col :span="12">
                     <el-form-item label="姓名" prop="username">
-                        <el-input v-model="formUser.username" placeholder="请输入姓名" />
+                        <el-input v-model="formUser.username" ref="usernameInput" placeholder="请输入姓名" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
                     <el-form-item label="密码" prop="password">
-                        <el-input type="password" v-model="formUser.password" placeholder="请输入密码" />
+                        <el-input type="password" v-model="formUser.password" ref="passwordInput" placeholder="请输入密码" />
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-row gutter="20">
                 <el-col :span="12">
                     <el-form-item label="邮箱" prop="email">
-                        <el-input v-model="formUser.email" placeholder="请输入邮箱" />
+                        <el-input v-model="formUser.email" ref="emailInput" placeholder="请输入邮箱" />
                     </el-form-item>
                 </el-col>
             </el-row>
+
+            <el-row gutter="20">
+                <el-col :span="12">
+                    <el-form-item label="上传图片">
+                        <el-upload class="upload-demo" drag :action="uploadAction" :show-file-list="false"
+                            accept="image/*" :before-upload="beforeUpload" :on-change="handleFileChange"
+                            :on-preview="handlePreview">
+                            <i class="el-icon-upload"></i>
+                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                        </el-upload>
+                        <div v-if="previewImage" class="preview-container">
+                            <img :src="previewImage" alt="Preview" class="preview-image">
+                            <el-button @click="handleCancelPreview" type="danger" size="small">取消图片</el-button>
+                        </div>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+
             <el-row gutter="20" justify="end">
                 <el-form-item>
                     <el-button @click="handleCancel">取消</el-button>
@@ -84,6 +110,21 @@ const formInline = reactive({
 })
 
 const formUser = reactive({})
+
+
+// 日期格式 - 年月日时分秒
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 const handleEdit = (row) => {
     formUser.username = row.username;
     formUser.password = row.password;
@@ -161,9 +202,10 @@ const userData = reactive({
 
 const getUserData = async (current, limit) => {
     let data = await proxy.$api.getUserData(current, limit)
+    console.log(data)
     userData.list = data.records.map(item => ({
         ...item,
-        sex: item.sex === 1 ? '男' : '女'
+        registrationTime: formatDate(item.registrationTime),
     }))
     configA.total = data.total
 }
@@ -212,18 +254,74 @@ const deleteUser = (row) => {
         });
 };
 
+
+const usernameInput = ref(null);
+const passwordInput = ref(null);
+const emailInput = ref(null);
+
 const onSubmit = () => {
-    SaveUser()
+    // 先检查用户名是否为空
+    if (!formUser.username) {
+        ElMessage({
+            type: 'warning',
+            message: '请填写用户名',
+        });
+        // 聚焦到用户名输入框
+        usernameInput.value.focus();
+        return false;
+    }
+
+    // 然后检查密码是否为空
+    if (!formUser.password) {
+        ElMessage({
+            type: 'warning',
+            message: '请填写密码',
+        });
+        // 聚焦到密码输入框
+        passwordInput.value.focus();
+        return false;
+    }
+
+    // 检查邮箱是否为空
+    if (!formUser.email) {
+        ElMessage({
+            type: 'warning',
+            message: '请填写邮箱',
+        });
+        // 聚焦到邮箱输入框
+        emailInput.value.focus();
+        return false;
+    }
+
+    // 最后检查图片是否上传
+    if (!selectedFile.value) {
+        ElMessage({
+            type: 'warning',
+            message: '请上传图片',
+        });
+        return false;
+    }
+
+    // 如果所有字段都填写了，则保存用户信息
+    saveUser();
 };
 
-const SaveUser = async () => {
+
+const saveUser = async () => {
     try {
         if (action.value === 'edit') {
+            
             await proxy.$api.updateUser(formUser); // 更新用户信息
         } else {
-            await proxy.$api.saveUser(formUser); // 保存用户信息
+            const formData = new FormData();
+            formData.append('file', selectedFile.value);
+            formData.append('username', formUser.username);
+            formData.append('password', formUser.password);
+            formData.append('email', formUser.email);
+            console.log(formData.get('file'))
+            await proxy.$api.saveUser(formData); // 保存用户信息
         }
-        configA.page = 1
+        configA.page
 
         await getUserData(1, 10);
         ElMessage({
@@ -239,6 +337,44 @@ const SaveUser = async () => {
         });
     }
 };
+
+// 上传图片的 API 地址
+const uploadAction = ''
+// 当前选择的文件
+const selectedFile = ref(null)
+
+// 预览图片的 URL
+const previewImage = ref(null)
+
+// 图片上传
+// 表单验证
+const beforeUpload = (file) => {
+    if (!formUser.username || !formUser.password || !formUser.email) {
+        ElMessage({
+            type: 'warning',
+            message: '请先填写其他信息',
+        });
+        return false
+    }
+    return true
+}
+
+// 处理文件选择变化
+const handleFileChange = (file, fileList) => {
+    selectedFile.value = file.raw
+    previewImage.value = URL.createObjectURL(file.raw) // 创建图片预览 URL
+}
+
+// 处理图片预览
+const handlePreview = (file) => {
+    previewImage.value = URL.createObjectURL(file.raw)
+}
+
+// 取消图片预览
+const handleCancelPreview = () => {
+    previewImage.value = null
+    selectedFile.value = null
+}
 
 
 const dialogVisible = ref(false)
@@ -261,11 +397,15 @@ const handleAdd = () => {
 
 const handleClose = () => {
     resetFormUser();
+    previewImage.value = null
+    selectedFile.value = null
     dialogVisible.value = false;
 };
 
 const handleCancel = () => {
     resetFormUser();
+    previewImage.value = null
+    selectedFile.value = null
     dialogVisible.value = false;
 };
 
@@ -274,6 +414,8 @@ const resetFormUser = () => {
     formUser.password = '';
     formUser.email = '';
     formUser.id = null;
+    previewImage.value = null
+    selectedFile.value = null
 }
 
 onMounted(() => {
@@ -414,5 +556,16 @@ onMounted(() => {
 .el-button--danger {
     background-color: #f56c6c;
     border-color: #f56c6c;
+}
+
+.preview-container {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.preview-image {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: contain;
 }
 </style>

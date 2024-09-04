@@ -1,11 +1,9 @@
 <template>
-    <div class="category-management">
         <div class="header">
             <h2>评论管理</h2>
         </div>
 
         <!-- 分类列表 -->
-        <div class="table-section">
             <el-table :data="comments" style="width: 100%" stripe>
                 <!-- 动态生成列 -->
                 <el-table-column v-for="item in commentLabel" :key="item.prop" :prop="item.prop" :label="item.label"
@@ -35,7 +33,6 @@
                 <el-pagination class="pagerA" background layout="prev, pager, next" :total='configA.total'
                     @current-change="handleChange" @click="handlePage" />
             </div>
-        </div>
 
         <!-- 评论详情对话框 -->
         <el-dialog title="评论详情" v-model="showDetailDialog" width="50%">
@@ -61,7 +58,6 @@
                 <el-button @click="showDetailDialog = false">关闭</el-button>
             </template>
         </el-dialog>
-    </div>
 </template>
 
 <script setup>
@@ -151,28 +147,28 @@ const handleDeleteComment = (comment) => {
             type: 'warning',
         }
     )
+    .then(() => {
+        return DeleteComment(comment.commentID)
         .then(() => {
-            return DeleteComment(comment.commentID)
-                .then(() => {
-                    getAllComment()
-                    ElMessage({
-                        type: 'success',
-                        message: 'Delete Success',
-                    });
-                })
-                .catch(err => {
-                    ElMessage({
-                        type: 'error',
-                        message: 'Failed to delete category: ' + err.message,
-                    });
-                });
-        })
-        .catch(() => {
+            getAllComment(configA.page, 10) // 传入当前页码和每页数量以保持分页状态
             ElMessage({
-                type: 'info',
-                message: '删除操作已取消',
+                type: 'success',
+                message: 'Delete Success',
+            });
+        })
+        .catch(err => {
+            ElMessage({
+                type: 'error',
+                message: 'Failed to delete comment: ' + err.message, // 更正为'comment'
             });
         });
+    })
+    .catch(() => {
+        ElMessage({
+            type: 'info',
+            message: '删除操作已取消',
+        });
+    });
 }
 
 // 查看评论详细信息
@@ -208,11 +204,7 @@ onMounted(() => {
 
 
 <style scoped lang="less">
-.category-management {
-    padding: 20px;
-    background: #f5f5f5;
-    border-radius: 8px;
-}
+
 
 .header {
     display: flex;
@@ -242,7 +234,7 @@ onMounted(() => {
     }
 }
 
-.pager {
+.page{
     margin-top: 20px;
 }
 

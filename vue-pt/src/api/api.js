@@ -59,6 +59,12 @@ export default{
         method: 'get',
       })
     },
+    getPostCategoryList: () => {  // 获取分类列表
+      return request({
+        url: `/category/getPostCategoryList`,
+        method: 'get',
+      })
+    },
     deletePost: (id) => {
       return request({
         url: `/article/deletePost/${id}`,
@@ -78,12 +84,15 @@ export default{
         data: postVO
       })
     },
-    SaveUser: (manager) => {
+    saveUser(manager) {
       return request({
-        url: `/manager/addManager`,
+        url: `/manager/AvatarUpload`,
         method: 'post',
-        data: manager
-      })
+        data: manager,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
     },
     getSummary: (aiDto1) => {  // 调用AI接口，获得简介内容
       return request({
@@ -208,6 +217,12 @@ export default{
       return request({
         url: `/pictureCategory/updatePictureCategoryStatus/${categoryID}/${status}`,
         method: 'put',
+      })
+    },
+    FileGetPictureCategoryList: () => {  // 获取分类列表
+      return request({
+        url: `/pictureCategory/FileGetPictureCategoryList`,
+        method: 'get',
       })
     },
     

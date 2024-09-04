@@ -5,7 +5,7 @@
       <el-col :span="8" class="left-section">
         <el-card shadow="hover" class="box-card">
           <div class="user">
-            <img :src="getImageUrl('user')" class="user-avatar" />
+            <img :src="userData.avatar" class="user-avatar" />
             <div class="user-info">
               <p class="user-info-admin">{{userData.username}}</p>
               <p class="user-info-role">管理员</p>
@@ -114,10 +114,6 @@ const { proxy } = getCurrentInstance()
 
 const userData = ref({})
 
-const getImageUrl = (user) => {
-  return new URL(`../assets/images/${user}.png`, import.meta.url).href
-}
-
 const tableData = ref([])
 
 const tableLabel = ref({
@@ -160,15 +156,35 @@ const toDoList = ref([])
 
 const selectedDate = ref(new Date())
 
+// 日期格式 - 年月日时分秒
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 onMounted(() => {
-  const data = localStorage.getItem('userInfo')
-  if(data==null){
-    localStorage.removeItem('userInfo')
-    router.push('/login')
-  }
-  userData.value = JSON.parse(data)
+  const data = localStorage.getItem('userInfo');
   
-})
+  if (data == null) {
+    localStorage.removeItem('userInfo');
+    router.push('/login');
+  } else {
+    const parsedData = JSON.parse(data);
+    
+    // 格式化 registrationTime
+    parsedData.registrationTime = formatDate(parsedData.registrationTime);
+    
+    userData.value = parsedData;
+  }
+});
 </script>
 
 <style scoped lang="less">

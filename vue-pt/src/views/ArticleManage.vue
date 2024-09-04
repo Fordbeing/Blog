@@ -207,6 +207,7 @@ const GetPostByTitle = async (Title, Author) => {
         Fdata = await proxy.$api.GetPostByTitle('default-title', Author.value)
     } else if (Title.value !== '' && Author.value === '') {
         Fdata = await proxy.$api.GetPostByTitle(Title.value, 'default-authorName')
+        console.log(Fdata)
     } else if (Title.value === '' && Author.value === '') {
         configA.page = 1
         getPostData(1, 10)

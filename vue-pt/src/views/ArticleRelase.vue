@@ -46,8 +46,8 @@ import 'md-editor-v3/lib/style.css';
 
 const { proxy } = getCurrentInstance()
 
-const getCategoryList = async () => {
-    let data = await proxy.$api.getCategoryList()
+const getPostCategoryList = async () => {
+    let data = await proxy.$api.getPostCategoryList()
     categories.value = data
 };
 
@@ -158,7 +158,7 @@ const handleCategoryChange = (value) => {
 }
 
 onMounted(() => {
-    getCategoryList()
+    getPostCategoryList()
 })
 </script>
 
