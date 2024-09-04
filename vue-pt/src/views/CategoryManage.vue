@@ -31,6 +31,10 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="pager">
+      <el-pagination class="pagerA" background layout="prev, pager, next" :total='configA.total'
+        @current-change="handleChange" @click="handlePage" />
+    </div>
 
     <!-- 添加分类对话框 -->
     <el-dialog title="添加分类" v-model="showAddDialog" @close="resetForm">
@@ -53,7 +57,7 @@
 
 
 <script setup>
-import { ref, getCurrentInstance, onMounted } from 'vue'
+import { ref, reactive, getCurrentInstance, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAllDataStore } from '@/stores'
 const { proxy } = getCurrentInstance()
@@ -89,6 +93,24 @@ const handleStatusChange = (category) => {
   const enable = category.enabled ? "1" : "0"
   // 发送状态更新请求
   updateCategoryStatus(category.categoryID, enable)
+}
+
+
+
+// 分页
+
+const configA = reactive({
+  name: '',
+  total: 10,
+  page: 1
+})
+const handleChange = (page) => {
+  configA.page = page
+  getCategoryList(page, 10)
+}
+
+const handlePage = () => {
+  getCategoryList(configA.page, 10)
 }
 
 
@@ -148,13 +170,13 @@ const handleDeleteCategory = (category) => {
 }
 
 // 分类管理
-const getCategoryList = async () => {
-  const data = await proxy.$api.getCategoryList()
-  console.log(data)
-  categories.value = data.map(category => ({
+const getCategoryList = async (page, limit) => {
+  const data = await proxy.$api.getCategoryList(page, limit)
+  categories.value = data.records.map(category => ({
     ...category,
     enabled: category.enable === 1
   }))
+  configA.total = data.total
 }
 
 
@@ -186,7 +208,7 @@ const updateCategoryStatus = async (categoryID, status) => {
 const addCategory = async (category) => {
   try {
     await proxy.$api.addCategory(category)
-    getCategoryList()
+    getCategoryList(1, 10)
     ElMessage({
       type: 'success',
       message: 'Add Success',
@@ -201,13 +223,13 @@ const addCategory = async (category) => {
 
 const deleteCategory = async (categoryID) => {
   await proxy.$api.deleteCategory(categoryID)
-  getCategoryList()
+  getCategoryList(1, 10)
 }
 
 const updateCategory = async (category) => {
   try {
     await proxy.$api.updateCategory(category)
-    getCategoryList()
+    getCategoryList(1, 10)
     ElMessage({
       type: 'success',
       message: 'Update Success',
@@ -227,7 +249,7 @@ const resetForm = () => {
 }
 
 onMounted(() => {
-  getCategoryList()
+  getCategoryList(1, 10)
 })
 </script>
 
@@ -264,5 +286,14 @@ onMounted(() => {
   .el-dialog__footer {
     background-color: #f9f9f9;
   }
+}
+
+.pager {
+  margin-top: 20px;
+}
+
+.pagerA {
+  display: flex;
+  justify-content: center;
 }
 </style>

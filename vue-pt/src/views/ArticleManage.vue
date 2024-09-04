@@ -25,12 +25,9 @@
             </div>
 
             <div class="table-section">
-                <el-table :data="postData.list" style="width: 100%">
+                <el-table :data="postData.list" style="width: 100%" border stripe>
                     <el-table-column v-for="item in tableLabel" :prop="item.prop" :label="item.label"
                         :width="item.width ? item.width : 125" />
-
-
-
 
                     <!-- 启用栏 -->
                     <el-table-column label="热门" width="100">
@@ -175,10 +172,11 @@ const handleClick = () => {
 
 const handleChange = (page) => {
     configA.page = page
+    getPostData(page, 10)
 }
 
 const handlePage = () => {
-    getPostData((configA.page - 1) * 10, 10)
+    getPostData(configA.page, 10)
 }
 
 const handleUpdate = () => {
@@ -197,9 +195,7 @@ const handleUpdate = () => {
 const handleSearch = async () => {
     let data = "";
     if (Title.value === '' && Author.value === '') {
-        data = await getPostData(0, 10);
-        postData.list = data.list;
-        configA.total = data.total;
+        getPostData(1, 10);
     } else {
         data = await GetPostByTitle(Title, Author);
     }
@@ -212,7 +208,8 @@ const GetPostByTitle = async (Title, Author) => {
     } else if (Title.value !== '' && Author.value === '') {
         Fdata = await proxy.$api.GetPostByTitle(Title.value, 'default-authorName')
     } else if (Title.value === '' && Author.value === '') {
-        getPostData(0, 10)
+        configA.page = 1
+        getPostData(1, 10)
     } else {
         Fdata = await proxy.$api.GetPostByTitle(Title.value, Author.value)
     }
@@ -249,9 +246,9 @@ const postData = reactive({
 const getPostData = async (current, limit) => {
     try {
         let data = await proxy.$api.getPostData(current, limit);
-        console.log(data)
         // 处理 data.list，将 hotArticle 转换为 true 或 false
-        postData.list = data.list.map(post => ({
+        console.log(data)
+        postData.list = data.records.map(post => ({
             ...post,
             publishDate: formatDate(post.publishDate),
             enabled: post.hotArticle === 1
@@ -308,7 +305,7 @@ const deletePost = (row) => {
 }
 
 onMounted(() => {
-    getPostData(0, 10)
+    getPostData(1, 10)
 })
 </script>
 
@@ -335,10 +332,10 @@ onMounted(() => {
 
 .table-section {
     margin-bottom: 20px;
-
+    border-radius: 12px; /* 调整这里的值以设置圆角大小 */
+    overflow: hidden; /* 让内容也遵循圆角 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 为表格添加阴影，使其更突出 */
 }
-
-
 
 .pager {
     margin-top: 20px;
@@ -348,6 +345,5 @@ onMounted(() => {
     display: flex;
     justify-content: center;
 }
-
-
 </style>
+

@@ -93,9 +93,9 @@ export default{
       })
     },
     // 分类管理
-    getCategoryList: () => {  // 获取分类列表
+    getCategoryList: (page,limit) => {  // 获取分类列表
       return request({
-        url: `/category/getCategoryList`,
+        url: `/category/getCategoryList/${page}/${limit}`,
         method: 'get',
       })
     },
@@ -131,9 +131,9 @@ export default{
         method: 'put',
       })
     },
-    getAllComment: () => {  // 得到所有评论
+    getAllComment: (page,limit) => {  // 得到所有评论
       return request({
-        url: `/comment/getAllComment`,
+        url: `/comment/getAllComment/${page}/${limit}`,
         method: 'get',
       })
     },
@@ -178,9 +178,9 @@ export default{
       });
     },
     // 图片分类管理
-    getPictureCategoryList: () => {  // 获取分类列表
+    getPictureCategoryList: (page,limit) => {  // 获取分类列表
       return request({
-        url: `/pictureCategory/getPictureCategoryList`,
+        url: `/pictureCategory/getPictureCategoryList/${page}/${limit}`,
         method: 'get',
       })
     },

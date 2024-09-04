@@ -31,6 +31,11 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <div class="pager">
+      <el-pagination class="pagerA" background layout="prev, pager, next" :total='configA.total'
+        @current-change="handleChange" @click="handlePage" />
+    </div>
   
       <!-- 添加分类对话框 -->
       <el-dialog title="添加分类" v-model="showAddDialog" @close="resetForm">
@@ -53,7 +58,7 @@
   
   
   <script setup>
-  import { ref, getCurrentInstance, onMounted } from 'vue'
+  import { ref,reactive, getCurrentInstance, onMounted } from 'vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { useAllDataStore } from '@/stores'
   const { proxy } = getCurrentInstance()
@@ -72,6 +77,24 @@
   // 表单数据
   const newCategory = ref({ categoryID: '', name: '', description: '', createTime: '' })
   const editingCategory = ref({ id: '', name: '' })
+
+// 分页
+
+const configA = reactive({
+  name: '',
+  total: 10,
+  page: 1
+})
+const handleChange = (page) => {
+  configA.page = page
+  getPictureCategoryList(page, 10)
+}
+
+const handlePage = () => {
+  getPictureCategoryList(configA.page, 10)
+}
+
+
   
   // 打开添加分类对话框
   const openAddCategoryDialog = (category) => {
@@ -107,7 +130,7 @@
     } else {
       addPictureCategory(newCategory.value)
     }
-    getPictureCategoryList()
+    getPictureCategoryList(configA.page, 10)
     showAddDialog.value = false
   }
   
@@ -125,7 +148,7 @@
       .then(() => {
         return deletePictureCategory(category.categoryID)
           .then(() => {
-            getPictureCategoryList()
+            getPictureCategoryList(configA.page, 10)
   
             ElMessage({
               type: 'success',
@@ -148,13 +171,14 @@
   }
   
   // 分类管理
-  const getPictureCategoryList = async () => {
-    const data = await proxy.$api.getPictureCategoryList()
+  const getPictureCategoryList = async (page,limit) => {
+    const data = await proxy.$api.getPictureCategoryList(page,limit)
     console.log(data)
-    categories.value = data.map(category => ({
+    categories.value = data.records.map(category => ({
       ...category,
       enabled: category.enable === 1
     }))
+    configA.total = data.total
   }
   
   
@@ -186,7 +210,7 @@
   const addPictureCategory = async (category) => {
     try {
       await proxy.$api.addPictureCategory(category)
-      getPictureCategoryList()
+      getPictureCategoryList(configA.page,10)
       ElMessage({
         type: 'success',
         message: 'Add Success',
@@ -201,13 +225,13 @@
   
   const deletePictureCategory = async (categoryID) => {
     await proxy.$api.deletePictureCategory(categoryID)
-    getPictureCategoryList()
+    getPictureCategoryList(configA.page,10)
   }
   
   const updatePictureCategory = async (category) => {
     try {
       await proxy.$api.updatePictureCategory(category)
-      getPictureCategoryList()
+      getPictureCategoryList(configA.page,10)
       ElMessage({
         type: 'success',
         message: 'Update Success',
@@ -227,7 +251,7 @@
   }
   
   onMounted(() => {
-    getPictureCategoryList()
+    getPictureCategoryList(1,10)
   })
   </script>
   
@@ -265,5 +289,14 @@
       background-color: #f9f9f9;
     }
   }
+
+  .pager {
+  margin-top: 20px;
+}
+
+.pagerA {
+  display: flex;
+  justify-content: center;
+}
   </style>
   

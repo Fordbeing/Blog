@@ -28,12 +28,13 @@
                 </template>
             </el-table-column>
         </el-table>
+        <div class="page">
+            <el-pagination class="pagerA" background layout="prev, pager, next" :total='configA.total'
+                @current-change="handleChange" />
+        </div>
     </div>
 
-    <div class="page">
-        <el-pagination class="pagerA" background layout="prev, pager, next" :total='configA.total'
-            @current-change="handleChange" />
-    </div>
+
 
     <el-dialog v-model="dialogVisible" :title="action == 'add' ? '新增用户' : '编辑用户'" width="35%"
         :before-close="handleClose" class="dialog-form">
@@ -85,32 +86,34 @@ const formInline = reactive({
 const formUser = reactive({})
 const handleEdit = (row) => {
     formUser.username = row.username;
-    formUser.password = row.password; 
+    formUser.password = row.password;
     formUser.email = row.email;
-    formUser.userID = row.userID; 
+    formUser.userID = row.userID;
 
     action.value = 'edit';
     dialogVisible.value = true;
+    getUserData(configA.page, 10)
 };
 
 const handleClick = () => {
-    
+
 }
 
 
 const handleChange = (page) => {
     configA.page = page
-    getUserData((configA.page - 1) * 10, 10)
+    getUserData(page, 10)
 }
 
 const handleSearch = () => {
     getByUsernameAndEmail(formInline.keyWord, formInline.email)
 }
 
-const handleClearSearch =() =>{
+const handleClearSearch = () => {
     formInline.keyWord = '';
     formInline.email = '';
-    getUserData(0, 10)
+    configA.page = 1
+    getUserData(1, 10)
 
 }
 
@@ -118,7 +121,8 @@ const getByUsernameAndEmail = async (username, email) => {
     let data = [];
     try {
         if (username === '' && email === '') {
-            return getUserData(0, 10)
+            configA.page = 1
+            return getUserData(1, 10)
         } else if (username === '' && email !== '') {
             username = 'default-name';
         } else if (username !== '' && email === '') {
@@ -127,10 +131,10 @@ const getByUsernameAndEmail = async (username, email) => {
 
         const response = await proxy.$api.getByUsernameAndEmail(username, email);
         userData.list = response.data;
-        
+
         // 判断数据是否存在
         if (response.data && response.data.length > 0) {
-            
+
         } else {
             ElMessage({
                 type: 'info',
@@ -157,7 +161,7 @@ const userData = reactive({
 
 const getUserData = async (current, limit) => {
     let data = await proxy.$api.getUserData(current, limit)
-    userData.list = data.list.map(item => ({
+    userData.list = data.records.map(item => ({
         ...item,
         sex: item.sex === 1 ? '男' : '女'
     }))
@@ -167,7 +171,8 @@ const getUserData = async (current, limit) => {
 const deleteUserData = async (id) => {
     try {
         let data = await proxy.$api.deleteUser(id);
-        await getUserData(0, 10);
+        configA.page = 1
+        await getUserData(1, 10);
         ElMessage({
             type: 'success',
             message: '删除成功',
@@ -218,8 +223,9 @@ const SaveUser = async () => {
         } else {
             await proxy.$api.saveUser(formUser); // 保存用户信息
         }
+        configA.page = 1
 
-        await getUserData(0, 10);
+        await getUserData(1, 10);
         ElMessage({
             type: 'success',
             message: action.value === 'edit' ? '编辑成功' : '新增成功',
@@ -271,7 +277,7 @@ const resetFormUser = () => {
 }
 
 onMounted(() => {
-    getUserData(0, 10)
+    getUserData(1, 10)
 })
 
 </script>
@@ -291,6 +297,70 @@ onMounted(() => {
 .table {
     margin-top: 20px;
 }
+
+/* 修改按钮样式 */
+.el-button--primary {
+    background-color: #1e90ff;
+    /* 更深的蓝色 */
+    border-color: #1e90ff;
+    color: #fff;
+    border-radius: 20px;
+    /* 圆角按钮 */
+    padding: 10px 20px;
+    /* 调整内边距 */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    /* 添加阴影 */
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.el-button--primary:hover {
+    background-color: #007bff;
+    /* hover 时的颜色 */
+    transform: translateY(-2px);
+    /* hover 时的轻微提升效果 */
+}
+
+.el-button--danger {
+    background-color: #ff4d4f;
+    /* 更现代的红色 */
+    border-color: #ff4d4f;
+    color: #fff;
+    border-radius: 20px;
+    padding: 10px 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.el-button--danger:hover {
+    background-color: #ff2a2a;
+    transform: translateY(-2px);
+}
+
+/* 修改表单标签样式 */
+.el-form-item__label {
+    color: #333;
+    /* 深灰色字体 */
+    font-weight: 600;
+    font-size: 16px;
+    /* 增加字体大小 */
+    margin-right: 10px;
+    /* 调整与输入框之间的间距 */
+    text-transform: uppercase;
+    /* 转换为大写字母 */
+}
+
+/* 对话框表单的标签样式 */
+.dialog-form .el-form-item__label {
+    color: #555;
+    /* 稍浅的灰色 */
+    font-weight: 700;
+    /* 更粗的字体 */
+    font-size: 14px;
+    /* 调整字体大小 */
+}
+
 
 .el-table {
     width: 100%;
@@ -314,6 +384,7 @@ onMounted(() => {
 }
 
 .dialog-form .el-form-item {
+
     margin-bottom: 20px;
 }
 
