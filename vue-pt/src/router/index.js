@@ -1,10 +1,9 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import axios from 'axios';
 
-// 从 localStorage 获取认证状态
+//从 localStorage 获取认证状态
 const isAuthenticated = () => {
-  const token = localStorage.getItem('authToken');
-  return token && token !== '';
+  return !!localStorage.getItem('authToken');
 };
 
 // 定义路由
@@ -74,21 +73,21 @@ const router = createRouter({
   routes,
 });
 
-// 添加路由守卫
-// router.beforeEach((to, from, next) => {
-//   if (to.path === '/login') {
-//     next();
-//   } else {
-//     const token = localStorage.getItem('authToken');
-//     if (isAuthenticated()) {
-//       // 设置默认的请求头
-//       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-//       next();
-//     } else {
-//       next('/login');
-//     }
-//   }
-// });
+//添加路由守卫
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {
+    next();
+  } else {
+    // 判断是否已登录
+    if (isAuthenticated()) {
+      // 设置默认的请求头
+      //axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
+      next();
+    } else {
+      next('/login');
+    }
+  }
+});
 
 // // 处理JWT过期的情况
 // axios.interceptors.response.use(

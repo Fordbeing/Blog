@@ -16,30 +16,40 @@
                 <template #dropdown>
                 <el-dropdown-menu>
                     <el-dropdown-item>个人中心</el-dropdown-item>
-                    <el-dropdown-item>退出</el-dropdown-item>
-
+                    <el-dropdown-item @click="handleLogout">退出</el-dropdown-item>
                 </el-dropdown-menu>
                 </template>
             </el-dropdown>
         </div>
-
     </div>
 </template>
 
+
 <script setup>
 import { useAllDataStore } from '@/stores'
+import { useRouter } from 'vue-router'
+
 const getImageUrl = (user) =>{
-    //import.meta.url 获取当前文件路径
     return new URL(`../assets/images/${user}.png`, import.meta.url).href
 }
 
 const allDataStore = useAllDataStore()
+const router = useRouter()
 
 const handleCollapse = () =>{
     allDataStore.state.isCollapse = !allDataStore.state.isCollapse
 }
 
+const handleLogout = () => {
+    // 清除用户数据
+    localStorage.removeItem('authToken'); // 或者使用其他方法来清除用户数据
+    localStorage.removeItem('userInfo');
+    
+    // 跳转到登录页面或其他页面
+    router.push('/login');
+}
 </script>
+
 
 
 <style lang="less" scoped>

@@ -7,12 +7,12 @@
           <div class="user">
             <img :src="getImageUrl('user')" class="user-avatar" />
             <div class="user-info">
-              <p class="user-info-admin">Admin</p>
+              <p class="user-info-admin">{{userData.username}}</p>
               <p class="user-info-role">管理员</p>
             </div>
           </div>
           <div class="login-info">
-            <p>上次登陆时间：<span>2024年8月</span></p>
+            <p>注册时间：<span>{{ userData.registrationTime }}</span></p>
             <p>上次登陆地点：<span>北京</span></p>
           </div>
         </el-card>
@@ -108,8 +108,11 @@
 <script setup>
 import { ref, getCurrentInstance, onMounted } from 'vue'
 import { ElCalendar } from 'element-plus'
+import router from '../router';
 
 const { proxy } = getCurrentInstance()
+
+const userData = ref({})
 
 const getImageUrl = (user) => {
   return new URL(`../assets/images/${user}.png`, import.meta.url).href
@@ -157,19 +160,14 @@ const toDoList = ref([])
 
 const selectedDate = ref(new Date())
 
-const getTableData = async () => {
-  const data = await proxy.$api.getTableData()
-  tableData.value = data.data
-}
-
-const getCountData = async () => {
-  const data = await proxy.$api.getCountData()
-  countData.value = data
-}
-
 onMounted(() => {
-  getTableData()
-  getCountData()
+  const data = localStorage.getItem('userInfo')
+  if(data==null){
+    localStorage.removeItem('userInfo')
+    router.push('/login')
+  }
+  userData.value = JSON.parse(data)
+  
 })
 </script>
 

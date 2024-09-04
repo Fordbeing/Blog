@@ -7,29 +7,35 @@ import request from './request'
 
 // 请求首页左侧的表格
 export default{
+  login: (loginDto) => {
+    return request({
+      url: `/index/login`,
+      method: 'post',
+      data: loginDto
+    })
+  },
     getTableData: () => {
       return request({
         url: '/manager/getAll',
         method: 'get',
       })
     },
-    getCountData: () => {
-      return request({
-        url: '/home/getCountData/',
-        method: 'get',
-        mock:true
-      })
-    },
-    getChartData: () => {
-      return request({
-        url: '/home/getChartData/',
-        method: 'get',
-        mock:true
-      })
-    },
     getUserData: (current,limit) => {
       return request({
         url: `/manager/findByPage/${current}/${limit}`,
+        method: 'get',
+      })
+    },
+    updateUser: (manager) => {
+      return request({
+        url: `/manager/updateManager`,
+        method: 'put',
+        data: manager
+      })
+    },
+    getByUsernameAndEmail: (username,email) => {
+      return request({
+        url: `/manager/getByUsernameAndEmail/${username}/${email}`,
         method: 'get',
       })
     },
@@ -39,6 +45,7 @@ export default{
         method: 'delete',
       })
     },
+
     savePost: (postDto) => {
       return request({
         url: `/article/savePost`,

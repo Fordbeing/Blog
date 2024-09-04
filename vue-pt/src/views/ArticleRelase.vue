@@ -16,7 +16,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="作者">
-                <el-input placeholder="请输入作者名称" v-model="Author" ref="articleAuthorInput"></el-input>
+                <el-input placeholder="请输入作者名称" v-model="Author" ref="articleAuthorInput" :disabled="true"></el-input>
             </el-form-item>
             <el-form-item class="summary-form-item">
                 <el-input type="textarea" placeholder="请输入简介" v-model="Summary" ref="articleSummaryInput" rows="4"></el-input>
@@ -51,6 +51,8 @@ const getCategoryList = async () => {
     categories.value = data
 };
 
+
+
 const text = ref('# Hello Editor');
 
 const Title = ref('')
@@ -63,6 +65,9 @@ const articleAuthorInput = ref(null)
 const articleSummaryInput = ref(null)
 
 const categories = ref([]);
+
+const userData = JSON.parse(localStorage.getItem('userInfo'))
+Author.value = userData.username
 
 const wordCount = computed(() => text.value.length);
 const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));

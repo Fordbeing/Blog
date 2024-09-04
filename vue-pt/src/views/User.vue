@@ -5,8 +5,12 @@
             <el-form-item label="用户名">
                 <el-input placeholder="请输入用户名" v-model="formInline.keyWord" prefix-icon="el-icon-user"></el-input>
             </el-form-item>
+            <el-form-item label="邮箱">
+                <el-input placeholder="请输入邮箱" v-model="formInline.email" prefix-icon="el-icon-message"></el-input>
+            </el-form-item>
             <el-form-item>
                 <el-button type="primary" @click="handleSearch">查询</el-button>
+                <el-button type="primary" @click="handleClearSearch">清空</el-button>
             </el-form-item>
         </el-form>
     </div>
@@ -19,7 +23,7 @@
             <el-table-column fixed="right" label="操作" min-width="160">
                 <template v-slot:default="scope">
                     <el-button size="small" @click="handleClick" plain>查看</el-button>
-                    <el-button type="primary" size="small" @click="handleClick">编辑</el-button>
+                    <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
                     <el-button @click="deleteUser(scope.row)" type="danger" size="small">删除</el-button>
                 </template>
             </el-table-column>
@@ -75,10 +79,24 @@ const tableLabel = store.state.tableLabelData;
 
 const formInline = reactive({
     keyWord: '',
+    email: '',
 })
+
+const formUser = reactive({})
+const handleEdit = (row) => {
+    formUser.username = row.username;
+    formUser.password = row.password; 
+    formUser.email = row.email;
+    formUser.userID = row.userID; 
+
+    action.value = 'edit';
+    dialogVisible.value = true;
+};
+
 const handleClick = () => {
-    console.log('click')
+    
 }
+
 
 const handleChange = (page) => {
     configA.page = page
@@ -86,9 +104,45 @@ const handleChange = (page) => {
 }
 
 const handleSearch = () => {
-    console.log(formInline.keyWord)
-    configA.name = formInline.keyWord
+    getByUsernameAndEmail(formInline.keyWord, formInline.email)
+}
+
+const handleClearSearch =() =>{
+    formInline.keyWord = '';
+    formInline.email = '';
     getUserData(0, 10)
+
+}
+
+const getByUsernameAndEmail = async (username, email) => {
+    let data = [];
+    try {
+        if (username === '' && email === '') {
+            return getUserData(0, 10)
+        } else if (username === '' && email !== '') {
+            username = 'default-name';
+        } else if (username !== '' && email === '') {
+            email = 'default-email';
+        }
+
+        const response = await proxy.$api.getByUsernameAndEmail(username, email);
+        userData.list = response.data;
+        
+        // 判断数据是否存在
+        if (response.data && response.data.length > 0) {
+            
+        } else {
+            ElMessage({
+                type: 'info',
+                message: '未找到匹配的用户',
+            });
+        }
+    } catch (error) {
+        ElMessage({
+            type: 'error',
+            message: '查询失败: ' + error.message,
+        });
+    }
 }
 
 const configA = reactive({
@@ -103,7 +157,6 @@ const userData = reactive({
 
 const getUserData = async (current, limit) => {
     let data = await proxy.$api.getUserData(current, limit)
-    console.log(data)
     userData.list = data.list.map(item => ({
         ...item,
         sex: item.sex === 1 ? '男' : '女'
@@ -160,25 +213,33 @@ const onSubmit = () => {
 
 const SaveUser = async () => {
     try {
-        let data = await proxy.$api.SaveUser(formUser);
+        if (action.value === 'edit') {
+            await proxy.$api.updateUser(formUser); // 更新用户信息
+        } else {
+            await proxy.$api.saveUser(formUser); // 保存用户信息
+        }
+
         await getUserData(0, 10);
         ElMessage({
             type: 'success',
-            message: '保存成功',
+            message: action.value === 'edit' ? '编辑成功' : '新增成功',
         });
+
+        handleClose(); // 关闭对话框并重置表单
     } catch (error) {
         ElMessage({
             type: 'error',
-            message: '保存失败: ' + error.message,
+            message: (action.value === 'edit' ? '编辑' : '新增') + '失败: ' + error.message,
         });
-    };
-}
+    }
+};
+
 
 const dialogVisible = ref(false)
 
 const action = ref("add")
 
-const formUser = reactive({})
+
 const rules = reactive({
     username: [{ required: true, message: "姓名是必填项", trigger: "blur" }],
     password: [
@@ -193,13 +254,20 @@ const handleAdd = () => {
 }
 
 const handleClose = () => {
-    proxy.$refs["userForm"].resetFields()
-    dialogVisible.value = false
-}
+    resetFormUser();
+    dialogVisible.value = false;
+};
 
 const handleCancel = () => {
-    proxy.$refs["userForm"].resetFields()
-    dialogVisible.value = false
+    resetFormUser();
+    dialogVisible.value = false;
+};
+
+const resetFormUser = () => {
+    formUser.username = '';
+    formUser.password = '';
+    formUser.email = '';
+    formUser.id = null;
 }
 
 onMounted(() => {
