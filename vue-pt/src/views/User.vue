@@ -18,18 +18,18 @@
     <div class="table">
         <el-table :data="userData.list" style="width: 100%" border stripe>
             <el-table-column v-for="item in tableLabel" :prop="item.prop" :label="item.label"
-                :width="item.width ? item.width : 125" >
+                :width="item.width ? item.width : 125">
                 <!-- 展示图片 -->
                 <!-- <template v-if="item.prop === 'avatar'" #default="{ row }">
                     <img :src="row.avatar" alt="图片" style="max-width: 400px; max-height: 200px;" />
                 </template>
-                <template v-else #default="{ row }">
+<template v-else #default="{ row }">
                     {{ row[item.prop] }}
                 </template> -->
             </el-table-column>
             <el-table-column fixed="right" label="操作" min-width="160">
                 <template v-slot:default="scope">
-                    <el-button size="small" @click="handleClick" plain>查看</el-button>
+                    <el-button size="small" @click="handleClick(scope.row)" plain>查看</el-button>
                     <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
                     <el-button @click="deleteUser(scope.row)" type="danger" size="small">删除</el-button>
                 </template>
@@ -92,6 +92,41 @@
             </el-row>
         </el-form>
     </el-dialog>
+
+
+    <!-- 评论详情对话框 -->
+    <el-dialog title="用户详情" v-model="showDetailDialog" width="50%">
+        <el-form :model="currentUser" label-width="120px">
+            <el-form-item label="用户ID">
+                <el-input v-model="currentUser.userID" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="用户名">
+                <el-input type="textarea" v-model="currentUser.username" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱">
+                <el-input type="textarea" v-model="currentUser.email" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="密码">
+                <el-input v-model="currentUser.password" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="权限">
+                <el-input v-model="currentUser.permissions" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="上传时间">
+                <el-input v-model="currentUser.registrationTime" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="图片">
+                <el-image :src="currentUser.avatar" style="width: auto; height: auto;"></el-image>
+            </el-form-item>
+            <!-- 其他需要显示的详细信息 -->
+        </el-form>
+        <template #footer>
+            <el-button @click="showDetailDialog = false">关闭</el-button>
+        </template>
+    </el-dialog>
+
+
+
 </template>
 
 <script setup>
@@ -136,8 +171,13 @@ const handleEdit = (row) => {
     getUserData(configA.page, 10)
 };
 
-const handleClick = () => {
-
+const currentUser = ref({})
+const showDetailDialog = ref(false)
+const handleClick = (row) => {
+    // 控制详情对话框显示与隐藏
+    console.log(row)
+    showDetailDialog.value = !showDetailDialog.value
+    currentUser.value = row;
 }
 
 
@@ -310,15 +350,19 @@ const onSubmit = () => {
 const saveUser = async () => {
     try {
         if (action.value === 'edit') {
-            
-            await proxy.$api.updateUser(formUser); // 更新用户信息
+            const formData = new FormData();
+            formData.append('file', selectedFile.value);
+            formData.append('userID', formUser.userID);
+            formData.append('username', formUser.username);
+            formData.append('password', formUser.password);
+            formData.append('email', formUser.email);
+            await proxy.$api.updateUser(formData); // 更新用户信息
         } else {
             const formData = new FormData();
             formData.append('file', selectedFile.value);
             formData.append('username', formUser.username);
             formData.append('password', formUser.password);
             formData.append('email', formUser.email);
-            console.log(formData.get('file'))
             await proxy.$api.saveUser(formData); // 保存用户信息
         }
         configA.page

@@ -127,7 +127,7 @@ const HandleaddCategory = () => {
   } else {
     addCategory(newCategory.value)
   }
-  getCategoryList()
+  getCategoryList(1,10)
   showAddDialog.value = false
 }
 
@@ -145,7 +145,7 @@ const handleDeleteCategory = (category) => {
     .then(() => {
       return deleteCategory(category.categoryID)
         .then(() => {
-          getCategoryList()
+          getCategoryList(1,10)
 
           ElMessage({
             type: 'success',

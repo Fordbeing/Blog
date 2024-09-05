@@ -26,12 +26,15 @@ export default{
         method: 'get',
       })
     },
-    updateUser: (manager) => {
+    updateUser(manager) {
       return request({
         url: `/manager/updateManager`,
         method: 'put',
-        data: manager
-      })
+        data: manager,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
     },
     getByUsernameAndEmail: (username,email) => {
       return request({
@@ -65,6 +68,12 @@ export default{
         method: 'get',
       })
     },
+    getAllPostByLabel: (label,current,limit) => {
+      return request({
+        url: `/article/getAllPostByLabel/${label}/${current}/${limit}`,
+        method: 'get',
+      })
+    },
     deletePost: (id) => {
       return request({
         url: `/article/deletePost/${id}`,
@@ -93,6 +102,20 @@ export default{
           'Content-Type': 'multipart/form-data'
         }
       });
+    },
+    handleContinueArticle: (aiDto1) => {  // 调用AI接口，续写文章内容
+      return request({
+        url: `/article/handleContinueArticle`,
+        method: 'post',
+        data: aiDto1
+      })
+    },
+    handleOptimizeArticle: (aiDto1) => {  // 调用AI接口，优化文章内容
+      return request({
+        url: `/article/handleOptimizeArticle`,
+        method: 'post',
+        data: aiDto1
+      })
     },
     getSummary: (aiDto1) => {  // 调用AI接口，获得简介内容
       return request({
@@ -190,6 +213,12 @@ export default{
     getPictureCategoryList: (page,limit) => {  // 获取分类列表
       return request({
         url: `/pictureCategory/getPictureCategoryList/${page}/${limit}`,
+        method: 'get',
+      })
+    },
+    getAllPictureByLabel: (label) => {  // 获取分类列表
+      return request({
+        url: `/fileUpload/getAllPictureByLabel/${label}`,
         method: 'get',
       })
     },

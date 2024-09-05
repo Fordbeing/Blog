@@ -1,104 +1,116 @@
 <template>
-        <div class="header">
-            <h2>评论管理</h2>
-            <!-- 添加按钮 -->
-            <el-button type="primary"  @click="showAddDialog = true">
-                添加图片
+    <div class="header">
+        <h2>图片管理</h2>
+        <el-dropdown @command="handleCommand">
+            <el-button type="primary">
+                图片分类查看<el-icon class="el-icon--right"><arrow-down /></el-icon>
             </el-button>
-        </div>
-
-        <!-- 分类列表 -->
-        <el-table :data="pictures" style="width: 100%" stripe>
-            <!-- 动态生成列 -->
-            <el-table-column v-for="item in pictureLabel" :key="item.prop" :prop="item.prop" :label="item.label"
-                :width="item.width ? item.width : 125">
-                <template v-if="item.prop === 'filepath'" #default="{ row }">
-                    <img :src="row.filepath" alt="图片" style="max-width: 400px; max-height: 200px;" />
-                </template>
-                <template v-else #default="{ row }">
-                    {{ row[item.prop] }}
-                </template>
-            </el-table-column>
-
-            <!-- 启用栏 -->
-            <el-table-column label="启用" width="100">
-                <template #default="{ row }">
-                    <el-switch v-model="row.enabled" @change="handleStatusChange(row)"></el-switch>
-                </template>
-            </el-table-column>
-
-            <!-- 操作列 -->
-            <el-table-column label="操作" width="300">
-                <template #default="{ row }">
-                    <el-button @click="handleViewPicture(row)" type="primary" size="small">
-                        查看
-                    </el-button>
-                    <el-button @click="handleDeletePicture(row)" type="danger" size="small">
-                        删除
-                    </el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-
-
-        <!-- 评论详情对话框 -->
-        <el-dialog title="评论详情" v-model="showDetailDialog" width="50%">
-            <el-form :model="currentPicture" label-width="120px">
-                <el-form-item label="图片名称">
-                    <el-input v-model="currentPicture.filename" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="图片描述">
-                    <el-input type="textarea" v-model="currentPicture.description" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="图片分类">
-                    <el-input v-model="currentPicture.category" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="上传时间">
-                    <el-input v-model="currentPicture.uploadTime" disabled></el-input>
-                </el-form-item>
-                <el-form-item label="图片">
-                    <el-image :src="currentPicture.filepath" style="width: auto; height: auto;"></el-image>
-                </el-form-item>
-                <!-- 其他需要显示的详细信息 -->
-            </el-form>
-            <template #footer>
-                <el-button @click="showDetailDialog = false">关闭</el-button>
+            <template #dropdown>
+                <el-dropdown-menu>
+                    <el-dropdown-item v-for="(item, index) in dropdownItems" :key="index" :command="item.name">
+                        {{ item.name }}
+                    </el-dropdown-item>
+                </el-dropdown-menu>
             </template>
-        </el-dialog>
+        </el-dropdown>
+        <!-- 添加按钮 -->
+        <el-button type="primary" @click="showAddDialog = true">
+            添加图片
+        </el-button>
+    </div>
 
-        <!-- 添加图片对话框 -->
-        <el-dialog title="添加图片" v-model="showAddDialog" width="50%">
-            <el-form :model="newPicture" ref="addPictureForm" label-width="120px">
-                <el-form-item label="图片名称" :rules="[{ required: true, message: '请输入图片名称', trigger: 'blur' }]">
-                    <el-input v-model="newPicture.filename"></el-input>
-                </el-form-item>
-                <el-form-item label="图片类型" :rules="[{ required: true, message: '请选择图片类型', trigger: 'change' }]">
-                    <el-select v-model="newPicture.category" placeholder="选择图片类型" @change="handleCategoryChange">
-                        <el-option v-for="option in categories" :key="option.name" :label="option.name"
-                            :value="option.name">
-                        </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="图片描述">
-                    <el-input type="textarea" v-model="newPicture.description"></el-input>
-                </el-form-item>
-                <el-form-item label="上传图片">
-                    <el-upload class="upload-demo" drag :action="uploadAction" :show-file-list="false" accept="image/*"
-                        :before-upload="beforeUpload" :on-change="handleFileChange" :on-preview="handlePreview">
-                        <i class="el-icon-upload"></i>
-                        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-                    </el-upload>
-                    <div v-if="previewImage" class="preview-container">
-                        <img :src="previewImage" alt="Preview" class="preview-image">
-                        <el-button @click="handleCancelPreview" type="danger" size="small">取消图片</el-button>
-                    </div>
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <el-button @click="handleClearData">取消</el-button>
-                <el-button type="primary" @click="handleAddPicture">确定</el-button>
+    <!-- 分类列表 -->
+    <el-table :data="pictures" style="width: 100%" stripe>
+        <!-- 动态生成列 -->
+        <el-table-column v-for="item in pictureLabel" :key="item.prop" :prop="item.prop" :label="item.label"
+            :width="item.width ? item.width : 125">
+            <template v-if="item.prop === 'filepath'" #default="{ row }">
+                <img :src="row.filepath" alt="图片" style="max-width: 400px; max-height: 200px;" />
             </template>
-        </el-dialog>
+            <template v-else #default="{ row }">
+                {{ row[item.prop] }}
+            </template>
+        </el-table-column>
+
+        <!-- 启用栏 -->
+        <el-table-column label="启用" width="100">
+            <template #default="{ row }">
+                <el-switch v-model="row.enabled" @change="handleStatusChange(row)"></el-switch>
+            </template>
+        </el-table-column>
+
+        <!-- 操作列 -->
+        <el-table-column label="操作" width="300">
+            <template #default="{ row }">
+                <el-button @click="handleViewPicture(row)" type="primary" size="small">
+                    查看
+                </el-button>
+                <el-button @click="handleDeletePicture(row)" type="danger" size="small">
+                    删除
+                </el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+
+
+    <!-- 评论详情对话框 -->
+    <el-dialog title="评论详情" v-model="showDetailDialog" width="50%">
+        <el-form :model="currentPicture" label-width="120px">
+            <el-form-item label="图片名称">
+                <el-input v-model="currentPicture.filename" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="图片描述">
+                <el-input type="textarea" v-model="currentPicture.description" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="图片分类">
+                <el-input v-model="currentPicture.category" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="上传时间">
+                <el-input v-model="currentPicture.uploadTime" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="图片">
+                <el-image :src="currentPicture.filepath" style="width: auto; height: auto;"></el-image>
+            </el-form-item>
+            <!-- 其他需要显示的详细信息 -->
+        </el-form>
+        <template #footer>
+            <el-button @click="showDetailDialog = false">关闭</el-button>
+        </template>
+    </el-dialog>
+
+    <!-- 添加图片对话框 -->
+    <el-dialog title="添加图片" v-model="showAddDialog" width="50%">
+        <el-form :model="newPicture" ref="addPictureForm" label-width="120px">
+            <el-form-item label="图片名称" :rules="[{ required: true, message: '请输入图片名称', trigger: 'blur' }]">
+                <el-input v-model="newPicture.filename"></el-input>
+            </el-form-item>
+            <el-form-item label="图片类型" :rules="[{ required: true, message: '请选择图片类型', trigger: 'change' }]">
+                <el-select v-model="newPicture.category" placeholder="选择图片类型" @change="handleCategoryChange">
+                    <el-option v-for="option in categories" :key="option.name" :label="option.name"
+                        :value="option.name">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="图片描述">
+                <el-input type="textarea" v-model="newPicture.description"></el-input>
+            </el-form-item>
+            <el-form-item label="上传图片">
+                <el-upload class="upload-demo" drag :action="uploadAction" :show-file-list="false" accept="image/*"
+                    :before-upload="beforeUpload" :on-change="handleFileChange" :on-preview="handlePreview">
+                    <i class="el-icon-upload"></i>
+                    <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                </el-upload>
+                <div v-if="previewImage" class="preview-container">
+                    <img :src="previewImage" alt="Preview" class="preview-image">
+                    <el-button @click="handleCancelPreview" type="danger" size="small">取消图片</el-button>
+                </div>
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <el-button @click="handleClearData">取消</el-button>
+            <el-button type="primary" @click="handleAddPicture">确定</el-button>
+        </template>
+    </el-dialog>
 </template>
 
 <script setup>
@@ -110,6 +122,31 @@ const { proxy } = getCurrentInstance()
 const dataStore = useAllDataStore()
 
 const pictureLabel = dataStore.state.PictureLabelData
+
+
+// 模拟分类数据
+const dropdownItems = ref([])
+
+const handleCommand = (command) => {
+    if(command ==='全部'){
+        getAllPicture()
+    }else{
+        getAllPictureByLabel(command)
+    }
+    
+}
+
+const getAllPictureByLabel = async (label) => {
+    proxy.$api.getAllPictureByLabel(label).then((res) => {
+        pictures.value = res.map(picture => ({
+        ...picture,
+        uploadTime: formatDate(picture.uploadTime),
+        enabled: picture.status === 1
+    }))
+    })
+
+}
+
 
 // 日期格式 - 年月日时分秒
 const formatDate = (dateString) => {
@@ -153,16 +190,18 @@ const previewImage = ref(null)
 const handleCategoryChange = (value) => {
     console.log(value)
     newPicture.value.category = value
+
 }
 
 const categories = ref({})
 
-    
-// 得到所有分类
-const FileGetPictureCategoryList = async() =>{
-    const data =  await proxy.$api.FileGetPictureCategoryList()
-    categories.value = data
 
+// 得到所有分类
+const FileGetPictureCategoryList = async () => {
+    const data = await proxy.$api.FileGetPictureCategoryList()
+    categories.value = data
+    dropdownItems.value = data
+    dropdownItems.value.unshift({ name: '全部', value: '' })
 }
 
 // 表单验证
@@ -269,7 +308,6 @@ const handleViewPicture = (picture) => {
 // 获取所有图片数据
 const getAllPicture = async () => {
     const data = await proxy.$api.getAllPicture()
-    console.log(data)
     pictures.value = data.map(picture => ({
         ...picture,
         uploadTime: formatDate(picture.uploadTime),
@@ -350,12 +388,16 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+}
+h2{
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .el-table {

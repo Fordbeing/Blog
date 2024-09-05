@@ -26,20 +26,19 @@ service.interceptors.request.use(
 service.interceptors.response.use(
     response => {
         // 对响应数据做点什么
-        const {code,data,msg} = response.data
-        
+        const {code,data,message} = response.data
         if(code === 200){
             return data
         }else{
             ElMessage.error(NETWORK_ERROR)
-            return Promise.reject(new Error(msg))
+            return Promise.reject(new Error(message))
         }
     },
     error => {
         // 对响应错误做点什么
         
-        ElMessage.error(msg || NETWORK_ERROR)
-        return Promise.reject(msg || NETWORK_ERROR)
+        ElMessage.error(message || NETWORK_ERROR)
+        return Promise.reject(message || NETWORK_ERROR)
     }
 );
 
