@@ -77,20 +77,40 @@
                 <el-form-item label="标题">
                     <el-input v-model="dialogTitle" :disabled="show"></el-input>
                 </el-form-item>
+
                 <el-form-item label="作者">
                     <el-input v-model="dialogAuthor" :disabled="show"></el-input>
                 </el-form-item>
-                <el-form-item label="分类">
+
+                <!-- 分类: 'click' 时为输入框, 其他情况为下拉框 -->
+                <el-form-item v-if="action === 'click'" label="分类">
                     <el-input v-model="dialogCategory" :disabled="show"></el-input>
                 </el-form-item>
+
+                <el-form-item v-else label="分类">
+                    <el-select v-model="dialogCategory" :disabled="show" placeholder="请选择分类"
+                        @change="handleCategoryChange">
+                        <el-option v-for="item in dropdownItems" :key="item.name" :label="item.name"
+                            :value="item.name"></el-option>
+                    </el-select>
+                </el-form-item>
+
                 <el-form-item label="发布时间">
                     <el-input v-model="dialogPublishDate" disabled></el-input>
                 </el-form-item>
+                <el-form-item label="内容简介">
+                    <el-input type="textarea" v-model="dialogSummary" :disabled="show"></el-input>
+                </el-form-item>
+
+                <!-- 内容: 'click' 时为预览模式, 其他情况为编辑器 -->
                 <el-form-item v-if="action === 'click'" label="内容">
                     <MdPreview v-model="dialogContent" :config="editorConfig" :disabled="show" theme="dark" />
                 </el-form-item>
-                <el-form-item v-else label="内容">
-                    <MdEditor v-model="dialogContent" :config="editorConfig" :disabled="show" theme="dark" />
+
+                <el-form-item v-else label="内容" @paste="handlePaste">
+                    <div class="articleUpdateContent" >
+                        <MdEditor v-model="dialogContent" :config="editorConfig" :disabled="show" theme="dark" />
+                    </div>
                 </el-form-item>
             </el-form>
 
@@ -110,17 +130,15 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted, reactive, nextTick } from 'vue'
+import { ref,computed, getCurrentInstance, onMounted, reactive, nextTick } from 'vue'
 import { useAllDataStore } from '@/stores'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useTransition } from '@vueuse/core'
 import { MdPreview, MdEditor } from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 
-const text = ref('# Hello Editor');
-const mdTitle = ref('');
-const mdAuthor = ref('')
-const createTime = ref('')
+
+
 
 const action = ref('')
 
@@ -128,17 +146,57 @@ const dialogVisible = ref(false);
 const dialogTitle = ref('');
 const dialogAuthor = ref('');
 const dialogPublishDate = ref('');
+const dialogSummary = ref('');
 const dialogCategory = ref('');
 const dialogContent = ref('');
 const editorConfig = {}; // 根据需要自定义编辑器配置
 
 const show = ref('')
 
+// 图片粘贴
+const handlePaste = async (event) => {
+    const items = event.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            const url = await uploadImage(file);
+            insertImageToEditor(url);
+        }
+    }
+};
+
+const uploadImage = async (file) => {
+    // 上传图片到服务器，并返回图片 URL
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await proxy.$api.uploadImage(formData);
+        
+        return response; // 服务器返回图片的 URL
+    } catch (error) {
+        console.error('图片上传失败:', error);
+    }
+};
+
+const insertImageToEditor = (url) => {
+    const imgTag = `![image](${url})`;
+    dialogContent.value += `\n\n${imgTag}`;
+};
+
+
+const handleCategoryChange = (value) => {
+    // 不需要干什么事
+}
+
+
 const handleClick = (row) => {
     dialogTitle.value = row.title;
     dialogAuthor.value = row.author;
     dialogPublishDate.value = formatDate(row.publishDate);
     dialogContent.value = row.content;
+    dialogSummary.value = row.summary;
     dialogCategory.value = row.categoryName;
     action.value = 'click';
     show.value = true;
@@ -153,6 +211,7 @@ const handleEdit = (row) => {
     dialogAuthor.value = row.author;
     dialogPublishDate.value = formatDate(row.publishDate);
     dialogContent.value = row.content;
+    dialogSummary.value = row.summary;
     dialogCategory.value = row.categoryName;
     action.value = '';
     show.value = false;
@@ -162,7 +221,10 @@ const handleEdit = (row) => {
 const handleSave = () => {
     formData.value.title = dialogTitle.value;
     formData.value.author = dialogAuthor.value;
+    formData.value.summary = dialogSummary.value;
     formData.value.content = dialogContent.value;
+    formData.value.wordCount = computed(() => dialogContent.value.length);
+    formData.value.readingTime = computed(() => Math.ceil(formData.value.wordCount / 200));
     formData.value.categoryName = dialogCategory.value;
     PostUpdate(formData.value)
 
@@ -175,6 +237,7 @@ const handleDialogClose = () => {
     dialogAuthor.value = '';
     dialogPublishDate.value = '';
     dialogContent.value = '';
+    dialogSummary.value = '';
 }
 
 const getPostCategoryList = async () => {
@@ -205,10 +268,10 @@ const handleCommand = (command) => {
 const getAllPostByLabel = async (label, pageIndex, pageSize) => {
     const data = await proxy.$api.getAllPostByLabel(label, pageIndex, pageSize)
     postData.list = data.records.map(post => ({
-            ...post,
-            publishDate: formatDate(post.publishDate),
-            enabled: post.hotArticle === 1
-        }));
+        ...post,
+        publishDate: formatDate(post.publishDate),
+        enabled: post.hotArticle === 1
+    }));
     active.value = label
     configA.page = 1
     configA.total = data.total
@@ -265,7 +328,7 @@ const updatePostStatus = async (postID, status) => {
 
     try {
         await proxy.$api.updatePostStatus(postID, status)
-        
+
         if (status === "1") {
             ElMessage({
                 type: 'success',
@@ -277,7 +340,7 @@ const updatePostStatus = async (postID, status) => {
                 message: 'disabled Success',
             });
         }
-        
+
     } catch (error) {
         ElMessage({
             type: 'error',
@@ -293,7 +356,7 @@ const handleClear = () => {
     Author.value = ''
     configA.page = 1
     active.value = '全部'
-    getPostData(1, 10)
+    getPostData(configA.page, 10)
 }
 
 
@@ -377,6 +440,7 @@ const postData = reactive({
 const getPostData = async (current, limit) => {
     try {
         let data = await proxy.$api.getPostData(current, limit);
+        console.log(data.records)
         // 处理 data.list，将 hotArticle 转换为 true 或 false
         postData.list = data.records.map(post => ({
             ...post,
@@ -396,7 +460,11 @@ const getPostData = async (current, limit) => {
 const deletePostData = async (id) => {
     try {
         await proxy.$api.deletePost(id);
-        await getPostData(configA.page, 10);
+        if (active.value === '全部') {
+            getPostData(1, 10)
+        } else {
+            getAllPostByLabel(active.value, 1, 10)
+        }
         ElMessage({
             type: 'success',
             message: 'Delete completed',
@@ -443,6 +511,10 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
+.el-select {
+    width: 200px;
+}
+
 .el-container {
     padding: 0px;
     height: auto;
@@ -485,11 +557,19 @@ onMounted(() => {
 
 .footer-align-right {
     display: flex;
-    justify-content: flex-end; /* 将按钮向右对齐 */
-    padding: 10px 20px; /* 可选：增加内边距 */
-}
-.footer-align-right .el-button {
-    margin-left: 10px; /* 按钮之间留出间距 */
+    justify-content: flex-end;
+    /* 将按钮向右对齐 */
+    padding: 10px 20px;
+    /* 可选：增加内边距 */
 }
 
+.footer-align-right .el-button {
+    margin-left: 10px;
+    /* 按钮之间留出间距 */
+}
+
+.articleUpdateContent{
+    width: 100%;
+    height: 100%;
+}
 </style>

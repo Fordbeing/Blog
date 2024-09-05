@@ -11,7 +11,7 @@
         <div class="r-content">
             <el-dropdown>
                 <span class="el-dropdown-link">
-                    <img :src="getImageUrl('user')" class="user" />
+                    <img :src="userData.avatar" class="user" />
                 </span>
                 <template #dropdown>
                 <el-dropdown-menu>
@@ -28,6 +28,7 @@
 <script setup>
 import { useAllDataStore } from '@/stores'
 import { useRouter } from 'vue-router'
+import {ref,onMounted} from 'vue'
 
 const getImageUrl = (user) =>{
     return new URL(`../assets/images/${user}.png`, import.meta.url).href
@@ -48,6 +49,12 @@ const handleLogout = () => {
     // 跳转到登录页面或其他页面
     router.push('/login');
 }
+
+const userData = ref({})
+
+onMounted(() => {
+    userData.value = JSON.parse(localStorage.getItem('userInfo'))
+})
 </script>
 
 

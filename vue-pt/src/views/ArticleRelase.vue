@@ -1,7 +1,7 @@
 <template>
     <div class="articleUpdateContainer">
         <!-- 文章信息输入部分 -->
-        <el-form :inline="true" :model="formInline" class="articleUpdateHeader">
+        <el-form :inline="true" class="articleUpdateHeader">
             <el-form-item label="文章标题">
                 <el-input placeholder="请输入文章标题" v-model="Title" ref="articleTitleInput"></el-input>
             </el-form-item>
@@ -23,8 +23,7 @@
             </el-form-item>
 
             <el-form-item class="summary-form-item">
-                <el-input type="textarea" placeholder="请输入简介" v-model="Summary" ref="articleSummaryInput"
-                    rows="4"></el-input>
+                <el-input type="textarea" placeholder="请输入简介" v-model="Summary" ref="articleSummaryInput"></el-input>
             </el-form-item>
 
             <el-form-item>
@@ -49,8 +48,8 @@
         </el-form>
 
         <!-- 文章内容编辑部分 -->
-        <div class="articleUpdateContent">
-            <md-editor v-model="text" :config="editorConfig" theme="dark" />
+        <div class="articleUpdateContent" @paste="handlePaste">
+            <md-editor v-model="text" theme="dark" />
         </div>
     </div>
 </template>
@@ -79,9 +78,41 @@ const articleCategoryInput = ref(null)
 const articleAuthorInput = ref(null)
 const articleSummaryInput = ref(null)
 const enable = ref(false)
-
-
 const hotArticle = ref(0)
+
+
+// 图片粘贴
+const handlePaste = async (event) => {
+    const items = event.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            const url = await uploadImage(file);
+            insertImageToEditor(url);
+        }
+    }
+};
+
+const uploadImage = async (file) => {
+    // 上传图片到服务器，并返回图片 URL
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await proxy.$api.uploadImage(formData);
+        
+        return response; // 服务器返回图片的 URL
+    } catch (error) {
+        console.error('图片上传失败:', error);
+    }
+};
+
+const insertImageToEditor = (url) => {
+    const imgTag = `![image](${url})`;
+    text.value += `\n\n${imgTag}`;
+};
+
 
 const handleStatusChange = (value) => {
     hotArticle.value = value ? 1 : 0
@@ -96,7 +127,7 @@ Author.value = userData.username
 const wordCount = computed(() => text.value.length);
 const estimatedReadingTime = computed(() => Math.ceil(wordCount.value / 200));
 
-const postDto = reactive({
+const postDto = ref({
     'title': Title,
     'category': Category,
     'content': text,
@@ -144,9 +175,25 @@ const handleRealse = () => {
             message: '发布成功！',
             type: 'success',
         })
-        savePost(postDto)
+        savePost(postDto.value)
+        resetForm()
+
     }
 }
+
+const resetForm = () => {
+    text.value = '# Hello Editor'
+    Title.value = ''
+    Category.value = ''
+    Summary.value = ''
+    hotArticle.value = 0
+    enable.value = false
+}
+
+// md图片粘贴
+
+
+
 
 const savePost = async (postDto) => {
     await proxy.$api.savePost(postDto)

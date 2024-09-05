@@ -103,6 +103,16 @@ export default{
         }
       });
     },
+    uploadImage(file) {
+      return request({
+        url: `/article/uploadImage`,
+        method: 'post',
+        data: file,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    },
     handleContinueArticle: (aiDto1) => {  // 调用AI接口，续写文章内容
       return request({
         url: `/article/handleContinueArticle`,

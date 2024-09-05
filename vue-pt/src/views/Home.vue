@@ -30,7 +30,7 @@
 
       <!-- 右侧消息通知与最近动态 -->
       <el-col :span="16" class="right-section">
-        <el-row gutter="20">
+        <el-row :gutter="20">
           <el-col :span="12">
             <!-- 日历模块 -->
             <el-card shadow="hover" class="calendar">
