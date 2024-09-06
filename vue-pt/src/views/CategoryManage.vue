@@ -75,6 +75,19 @@ const showEditDialog = ref(false)
 const newCategory = ref({ categoryID: '', name: '', description: '', createTime: '' })
 const editingCategory = ref({ id: '', name: '' })
 
+const categoryNameAndCount = ref({})
+// 获取分类对应数据条数
+const getCategoryArticleCount = async() =>{
+  const res = await proxy.$api.getCategoryArticleCount()
+  
+  for (const categoryName in res) {
+  if (res.hasOwnProperty(categoryName)) {
+    const item = res[categoryName];
+    categoryNameAndCount.value[item.categoryName] = item.categoryCount
+  }
+}
+}
+
 // 打开添加分类对话框
 const openAddCategoryDialog = (category) => {
   if (category.categoryID !== undefined) {
@@ -172,7 +185,9 @@ const getCategoryList = async (page, limit) => {
   const data = await proxy.$api.getCategoryList(page, limit)
   categories.value = data.records.map(category => ({
     ...category,
-    enabled: category.enable === 1
+    enabled: category.enable === 1,
+    count: categoryNameAndCount.value[category.name] || 0,
+
   }))
   configA.total = data.total
 }
@@ -248,6 +263,7 @@ const resetForm = () => {
 
 onMounted(() => {
   getCategoryList(1, 10)
+  getCategoryArticleCount()
 })
 </script>
 

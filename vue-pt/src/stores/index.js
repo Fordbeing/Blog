@@ -101,12 +101,17 @@ function initState(){
             {
                 prop:'name',
                 label:'分类名称',
-                width:400
+                width:200
+            },
+            {
+                prop:'count',
+                label:'文章数量',
+                width:200
             },
             {
                 prop:'description',
                 label:'分类描述',
-                width: 400
+                width: 500
             },
             {
                 prop:'createTime',

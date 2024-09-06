@@ -80,7 +80,7 @@ import { ref, onMounted, computed } from 'vue';
 import Header from '../components/Header.vue';
 import { useRoute } from 'vue-router';
 import { MdPreview } from 'md-editor-v3';
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox,ElLoading } from 'element-plus'
 import 'md-editor-v3/lib/preview.css';
 import { onUnmounted, getCurrentInstance } from 'vue';
 const { proxy } = getCurrentInstance();
@@ -152,12 +152,32 @@ const articleId = route.params.id;
 const article = ref({});
 
 
-const getArticleDetailById = async (postID) => {
-  const data = await proxy.$api.getArticleDetailById(postID)
-  article.value = data
-  article.value.views += 1;
+// 创建一个 sleep 函数，延迟指定的毫秒数
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+const getArticleDetailById = async (postID) => {
+  // 开启加载等待框
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在加载文章内容...',
+    background: 'rgba(0, 0, 0, 0.7)',
+  });
+
+  try {
+    const data = await proxy.$api.getArticleDetailById(postID);
+    article.value = data;
+    article.value.views += 1;
+
+    // 设置睡眠 2 秒 (2000 毫秒)
+    await sleep(2000);
+  } catch (error) {
+    console.error('Error fetching article:', error);
+  } finally {
+    // 请求完成后关闭加载等待框
+    loading.close();
+  }
 }
+
 
 onMounted(() => {
   getArticleDetailById(articleId);

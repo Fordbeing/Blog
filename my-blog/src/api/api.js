@@ -59,5 +59,11 @@ export default{
         method: 'get',
       })
     },
+    getAllPicture: () => {  // 得到所有图片
+      return request({
+        url: `/pictureInfo/getAllPicture`,
+        method: 'get',
+      })
+    },
     
 }

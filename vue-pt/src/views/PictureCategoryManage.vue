@@ -7,7 +7,7 @@
       <!-- 分类列表 -->
       <el-table :data="categories" style="width: 100%" stripe>
         <!-- 动态生成列 -->
-        <el-table-column v-for="item in categoryLabel" :key="item.prop" :prop="item.prop" :label="item.label"
+        <el-table-column  v-for="item in categoryLabel" :key="item.prop" :prop="item.prop" :label="item.label === '文章数量' ? '图片数量' : item.label"
           :width="item.width ? item.width : 125">
         </el-table-column>
   
@@ -76,6 +76,22 @@
   // 表单数据
   const newCategory = ref({ categoryID: '', name: '', description: '', createTime: '' })
   const editingCategory = ref({ id: '', name: '' })
+
+  const categoryNameAndCount = ref({})
+
+
+// 获取分类对应数据条数
+const getCategoryPictureCount = async() =>{
+  const res = await proxy.$api.getCategoryPictureCount()
+  
+  for (const categoryName in res) {
+  if (res.hasOwnProperty(categoryName)) {
+    const item = res[categoryName];
+    categoryNameAndCount.value[item.categoryName] = item.categoryCount
+  }
+}
+}
+
 
 // 分页
 
@@ -175,7 +191,8 @@ const handlePage = () => {
     console.log(data)
     categories.value = data.records.map(category => ({
       ...category,
-      enabled: category.enable === 1
+      enabled: category.enable === 1,
+      count: categoryNameAndCount.value[category.name] || 0,
     }))
     configA.total = data.total
   }
@@ -251,6 +268,7 @@ const handlePage = () => {
   
   onMounted(() => {
     getPictureCategoryList(1,10)
+    getCategoryPictureCount()
   })
   </script>
   

@@ -264,5 +264,16 @@ export default{
         method: 'get',
       })
     },
-    
+    getCategoryArticleCount: () => {  // 获取每个分类的文章数量
+      return request({
+        url: `/category/getCategoryArticleCount`,
+        method: 'get',
+      })
+    },
+    getCategoryPictureCount: () => {  // 获取每个分类的图片数量
+      return request({
+        url: `/pictureCategory/getCategoryPictureCount`,
+        method: 'get',
+      })
+    },
 }
