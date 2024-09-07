@@ -40,7 +40,6 @@
   left: 50%;
   width: 24px;
   height: 24px;
-  background: url('@/assets/img/magnify-icon.png') no-repeat center center;
   background-size: 24px 24px;
   transform: translate(-50%, -50%);
   opacity: 0;
