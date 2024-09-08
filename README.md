@@ -1,4 +1,6 @@
 # PTBlog-Vue
+
+# 网站具体地址：http://120.55.90.66:5174/
 ## 介绍
 PTBlog-Vue 是一个基于 Vue.js 的博客系统，它使用 [Element](https://github.com/ElemeFE/element) 作为 UI 组件库。
 
